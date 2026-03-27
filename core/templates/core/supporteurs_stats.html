@@ -1,0 +1,364 @@
+{% extends "base.html" %}
+{% block title %}Statistiques - FC Saint Eloi Lupopo{% endblock %}
+
+{% block content %}
+<div class="min-h-[85vh] bg-gray-50 py-12 relative z-0">
+
+    <div class="absolute top-0 right-0 w-1/3 h-1/3 bg-gradient-to-br from-indigo-50 to-transparent rounded-bl-full -z-10"></div>
+    <div class="absolute bottom-0 left-0 w-1/4 h-1/4 bg-gradient-to-tr from-yellow-50 to-transparent rounded-tr-full -z-10"></div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+        <!-- HEADER -->
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-4">
+            <div>
+                <h1 class="text-3xl md:text-4xl font-extrabold text-gray-900 mb-2">
+                    📊 Statistiques Démographiques
+                </h1>
+                <p class="text-gray-600">
+                    Analyse de la base des supporteurs
+                </p>
+            </div>
+
+            <div class="bg-white px-6 py-4 rounded-2xl shadow border flex justify-between min-w-[220px]">
+                <div>
+                    <p class="text-xs text-gray-500">TOTAL</p>
+                    <p class="text-2xl font-black">
+                        {{ supporteurs_count }}
+                    </p>
+                </div>
+                <div class="text-2xl">📁</div>
+            </div>
+        </div>
+
+        <!-- FILTRE -->
+        {% if filtre and valeur %}
+        <div class="bg-indigo-50 border rounded-xl p-4 mb-6 flex justify-between items-center">
+            <div>
+                <strong>{{ filtre|cut:"_"|title }}</strong> : "{{ valeur }}"
+            </div>
+            <a href="{% url 'supporteurs_dashboard_stats' %}" class="text-red-500 font-bold">✕</a>
+        </div>
+        {% endif %}
+
+        <!-- TABS -->
+        <div x-data="{ tab: 'provinces' }" class="bg-white rounded-2xl shadow overflow-hidden">
+
+            <!-- NAVIGATION MOBILE FRIENDLY -->
+            <div class="border-b bg-gray-50 relative">
+
+                <div class="absolute right-0 top-0 h-full w-10 bg-gradient-to-l from-white to-transparent pointer-events-none"></div>
+
+                <div class="flex overflow-x-auto gap-2 px-3 py-2 scrollbar-hide">
+
+                    <button @click="tab='provinces'" 
+                        class="px-4 py-2 text-xs sm:text-sm font-bold whitespace-nowrap rounded-lg"
+                        :class="tab==='provinces' ? 'bg-blue-600 text-white' : 'bg-white border'">
+                        Provinces
+                    </button>
+
+                    <button @click="tab='villes'" 
+                        class="px-4 py-2 text-xs sm:text-sm font-bold whitespace-nowrap rounded-lg"
+                        :class="tab==='villes' ? 'bg-blue-600 text-white' : 'bg-white border'">
+                        Villes
+                    </button>
+
+                    <button @click="tab='communes'" 
+                        class="px-4 py-2 text-xs sm:text-sm font-bold whitespace-nowrap rounded-lg"
+                        :class="tab==='communes' ? 'bg-blue-600 text-white' : 'bg-white border'">
+                        Communes
+                    </button>
+
+                    <button @click="tab='adhesions'" 
+                        class="px-4 py-2 text-xs sm:text-sm font-bold whitespace-nowrap rounded-lg"
+                        :class="tab==='adhesions' ? 'bg-blue-600 text-white' : 'bg-white border'">
+                        Qualité membre
+                    </button>
+
+                    <button @click="tab='sexe'" 
+                        class="px-4 py-2 text-xs sm:text-sm font-bold whitespace-nowrap rounded-lg"
+                        :class="tab==='sexe' ? 'bg-blue-600 text-white' : 'bg-white border'">
+                        Sexe
+                    </button>
+
+                </div>
+            </div>
+
+            <!-- CONTENT -->
+            <div class="p-4 md:p-6">
+
+                <!-- PROVINCES -->
+                <div x-show="tab==='provinces'" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                    {% for item in provinces_count %}
+                    <a href="?filtre=province&valeur={{ item.province|urlencode }}"
+                        class="p-4 bg-gray-50 rounded-xl flex justify-between">
+                        <span>{{ item.province|default:"Non renseigné" }}</span>
+                        <strong>{{ item.total }}</strong>
+                    </a>
+                    {% endfor %}
+                </div>
+
+                <!-- VILLES -->
+                <div x-show="tab==='villes'" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                    {% for item in villes_count %}
+                    <a href="?filtre=ville&valeur={{ item.ville|urlencode }}"
+                        class="p-4 bg-gray-50 rounded-xl flex justify-between">
+                        <span>{{ item.ville|default:"Non renseigné" }}</span>
+                        <strong>{{ item.total }}</strong>
+                    </a>
+                    {% endfor %}
+                </div>
+
+                <!-- COMMUNES -->
+                <div x-show="tab==='communes'" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                    {% for item in communes_count %}
+                    <a href="?filtre=commune&valeur={{ item.commune|urlencode }}"
+                        class="p-4 bg-gray-50 rounded-xl flex justify-between">
+                        <span>{{ item.commune|default:"Non renseigné" }}</span>
+                        <strong>{{ item.total }}</strong>
+                    </a>
+                    {% endfor %}
+                </div>
+
+                <!-- ADHESION -->
+                <div x-show="tab==='adhesions'" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                    {% for item in statut_adhesion_count %}
+                    <a href="?filtre=statut_adhesion&valeur={{ item.statut_adhesion|urlencode }}"
+                        class="p-4 bg-gray-50 rounded-xl flex justify-between">
+                        <span>{{ item.statut_adhesion|cut:"_"|title }}</span>
+                        <strong>{{ item.total }}</strong>
+                    </a>
+                    {% endfor %}
+                </div>
+
+                <!-- SEXE -->
+                <div x-show="tab==='sexe'" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {% for item in sexe_count %}
+                    <a href="?filtre=sexe&valeur={{ item.sexe|urlencode }}"
+                        class="p-4 bg-white border rounded-xl flex justify-between">
+                        <span>
+                            {% if item.sexe == "M" %}Masculin{% elif item.sexe == "F" %}Féminin{% else %}Non renseigné{% endif %}
+                        </span>
+                        <strong>{{ item.total }}</strong>
+                    </a>
+                    {% endfor %}
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+
+<style>
+.scrollbar-hide::-webkit-scrollbar {
+    height: 4px;
+}
+.scrollbar-hide::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 10px;
+}
+</style>
+
+{% endblock %}
+{% comment %} {% extends "base.html" %}
+{% block title %}Statistiques - FC Saint Eloi Lupopo{% endblock %}
+
+{% block content %}
+<div class="min-h-[85vh] bg-gray-50 py-12 relative z-0">
+    <div class="absolute top-0 right-0 w-1/3 h-1/3 bg-gradient-to-br from-indigo-50 to-transparent rounded-bl-full -z-10"></div>
+    <div class="absolute bottom-0 left-0 w-1/4 h-1/4 bg-gradient-to-tr from-yellow-50 to-transparent rounded-tr-full -z-10"></div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+        <!-- En-tête -->
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-4">
+            <div>
+                <h1 class="text-3xl md:text-4xl font-extrabold text-gray-900 mb-2 tracking-tight">
+                    <i class="fas fa-chart-pie text-lupopo-yellow mr-3"></i> Statistiques Démographiques
+                </h1>
+                <p class="text-lg text-gray-600">
+                    Analyse détaillée de la base de données des supporteurs.
+                </p>
+            </div>
+
+            <!-- Total Card -->
+            <div class="bg-white px-6 py-4 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between min-w-[250px]">
+                <div>
+                    <p class="text-xs text-gray-500 uppercase tracking-wider font-semibold">Total Base de données</p>
+                    <p class="text-2xl font-black text-gray-900 mt-1">
+                        {{ supporteurs_count }} <span class="text-sm font-medium text-gray-400">cartes</span>
+                    </p>
+                </div>
+                <div class="w-12 h-12 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center text-xl">
+                    <i class="fas fa-database"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filtre actif Banner -->
+        {% if filtre and valeur %}
+        <div class="bg-indigo-50 border border-indigo-100 rounded-2xl p-4 mb-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-center">
+                <div class="w-10 h-10 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center mr-4">
+                    <i class="fas fa-filter text-sm"></i>
+                </div>
+                <div>
+                    <p class="text-indigo-900 font-medium">Vue filtrée : <span class="capitalize">{{ filtre|replace:"_":" " }}</span></p>
+                    <p class="text-sm text-indigo-700 font-bold mt-0.5">"{{ valeur }}"</p>
+                </div>
+            </div>
+            <a href="{% url 'supporteurs_dashboard_stats' %}" class="px-5 py-2.5 bg-white text-indigo-600 text-sm font-bold rounded-xl shadow-sm hover:bg-gray-50 border border-indigo-200 transition-colors whitespace-nowrap flex items-center hover:-translate-y-0.5 transform">
+                <i class="fas fa-times mr-2"></i> Effacer le filtre
+            </a>
+        </div>
+        {% endif %}
+
+        <!-- Alpine.js Tabs Interface -->
+        <div x-data="{ tab: 'provinces' }" class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden mb-10">
+            
+            <!-- Navigation -->
+            <div class="border-b border-gray-100 bg-gray-50/50">
+                <div class="flex overflow-x-auto scrollbar-hide px-4">
+                    <button @click="tab = 'provinces'" 
+                            :class="tab === 'provinces' ? 'border-lupopo-blue text-lupopo-blue bg-white shadow-[0_-2px_0_0_#0033a0] focus:outline-none' : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50'"
+                            class="px-6 py-4 font-bold text-sm whitespace-nowrap border-b-2 transition-colors flex items-center">
+                        <i class="fas fa-map text-lg mr-2" :class="tab === 'provinces' ? 'text-lupopo-blue' : 'text-gray-400'"></i> Provinces
+                    </button>
+                    <button @click="tab = 'villes'" 
+                            :class="tab === 'villes' ? 'border-lupopo-blue text-lupopo-blue bg-white shadow-[0_-2px_0_0_#0033a0] focus:outline-none' : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50'"
+                            class="px-6 py-4 font-bold text-sm whitespace-nowrap border-b-2 transition-colors flex items-center">
+                        <i class="fas fa-city text-lg mr-2" :class="tab === 'villes' ? 'text-lupopo-blue' : 'text-gray-400'"></i> Villes
+                    </button>
+                    <button @click="tab = 'communes'" 
+                            :class="tab === 'communes' ? 'border-lupopo-blue text-lupopo-blue bg-white shadow-[0_-2px_0_0_#0033a0] focus:outline-none' : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50'"
+                            class="px-6 py-4 font-bold text-sm whitespace-nowrap border-b-2 transition-colors flex items-center">
+                        <i class="fas fa-home text-lg mr-2" :class="tab === 'communes' ? 'text-lupopo-blue' : 'text-gray-400'"></i> Communes
+                    </button>
+                    <button @click="tab = 'adhesions'" 
+                            :class="tab === 'adhesions' ? 'border-lupopo-blue text-lupopo-blue bg-white shadow-[0_-2px_0_0_#0033a0] focus:outline-none' : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50'"
+                            class="px-6 py-4 font-bold text-sm whitespace-nowrap border-b-2 transition-colors flex items-center">
+                        <i class="fas fa-id-badge text-lg mr-2" :class="tab === 'adhesions' ? 'text-lupopo-blue' : 'text-gray-400'"></i> Qualité membre
+                    </button>
+                    <button @click="tab = 'sexe'" 
+                            :class="tab === 'sexe' ? 'border-lupopo-blue text-lupopo-blue bg-white shadow-[0_-2px_0_0_#0033a0] focus:outline-none' : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50'"
+                            class="px-6 py-4 font-bold text-sm whitespace-nowrap border-b-2 transition-colors flex items-center">
+                        <i class="fas fa-venus-mars text-lg mr-2" :class="tab === 'sexe' ? 'text-lupopo-blue' : 'text-gray-400'"></i> Sexe
+                    </button>
+                </div>
+            </div>
+
+            <!-- Content Area -->
+            <div class="p-6 md:p-8">
+                
+                <!-- Provinces -->
+                <div x-show="tab === 'provinces'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 transform translate-y-2" x-transition:enter-end="opacity-100 transform translate-y-0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4" style="display: none;">
+                    {% for item in provinces_count %}
+                    <a href="?filtre=province&valeur={{ item.province|urlencode }}"
+                       class="group relative flex items-center justify-between px-5 py-4 rounded-2xl border transition-all transform hover:-translate-y-0.5 {% if filtre == 'province' and valeur == item.province %}bg-lupopo-blue text-white border-blue-600 shadow-md{% else %}bg-gray-50 text-gray-700 border-gray-200 hover:bg-white hover:border-lupopo-blue hover:shadow-sm{% endif %}">
+                        <span class="font-bold truncate pr-3">{{ item.province|default:"Non Renseigné" }}</span>
+                        <div class="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center font-bold font-mono text-sm {% if filtre == 'province' and valeur == item.province %}bg-white/20 text-white{% else %}bg-indigo-50 text-indigo-700 group-hover:bg-blue-100 group-hover:text-lupopo-blue{% endif %}">
+                            {{ item.total }}
+                        </div>
+                    </a>
+                    {% empty %}
+                    <div class="col-span-full py-12 text-center text-gray-500">Aucune donnée disponible pour les provinces.</div>
+                    {% endfor %}
+                </div>
+
+                <!-- Villes -->
+                <div x-show="tab === 'villes'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 transform translate-y-2" x-transition:enter-end="opacity-100 transform translate-y-0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4" style="display: none;">
+                    {% for item in villes_count %}
+                    <a href="?filtre=ville&valeur={{ item.ville|urlencode }}"
+                       class="group relative flex items-center justify-between px-5 py-4 rounded-2xl border transition-all transform hover:-translate-y-0.5 {% if filtre == 'ville' and valeur == item.ville %}bg-lupopo-blue text-white border-blue-600 shadow-md{% else %}bg-gray-50 text-gray-700 border-gray-200 hover:bg-white hover:border-lupopo-blue hover:shadow-sm{% endif %}">
+                        <span class="font-bold truncate pr-3">{{ item.ville|default:"Non Renseigné" }}</span>
+                        <div class="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center font-bold font-mono text-sm {% if filtre == 'ville' and valeur == item.ville %}bg-white/20 text-white{% else %}bg-indigo-50 text-indigo-700 group-hover:bg-blue-100 group-hover:text-lupopo-blue{% endif %}">
+                            {{ item.total }}
+                        </div>
+                    </a>
+                    {% empty %}
+                    <div class="col-span-full py-12 text-center text-gray-500">Aucune donnée disponible pour les villes.</div>
+                    {% endfor %}
+                </div>
+
+                <!-- Communes -->
+                <div x-show="tab === 'communes'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 transform translate-y-2" x-transition:enter-end="opacity-100 transform translate-y-0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4" style="display: none;">
+                    {% for item in communes_count %}
+                    <a href="?filtre=commune&valeur={{ item.commune|urlencode }}"
+                       class="group relative flex items-center justify-between px-5 py-4 rounded-2xl border transition-all transform hover:-translate-y-0.5 {% if filtre == 'commune' and valeur == item.commune %}bg-lupopo-blue text-white border-blue-600 shadow-md{% else %}bg-gray-50 text-gray-700 border-gray-200 hover:bg-white hover:border-lupopo-blue hover:shadow-sm{% endif %}">
+                        <span class="font-bold truncate pr-3">{{ item.commune|default:"Non Renseigné" }}</span>
+                        <div class="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center font-bold font-mono text-sm {% if filtre == 'commune' and valeur == item.commune %}bg-white/20 text-white{% else %}bg-indigo-50 text-indigo-700 group-hover:bg-blue-100 group-hover:text-lupopo-blue{% endif %}">
+                            {{ item.total }}
+                        </div>
+                    </a>
+                    {% empty %}
+                    <div class="col-span-full py-12 text-center text-gray-500">Aucune donnée disponible pour les communes.</div>
+                    {% endfor %}
+                </div>
+
+                <!-- Adhésions -->
+                <div x-show="tab === 'adhesions'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 transform translate-y-2" x-transition:enter-end="opacity-100 transform translate-y-0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" style="display: none;">
+                    {% for item in statut_adhesion_count %}
+                    <a href="?filtre=statut_adhesion&valeur={{ item.statut_adhesion|urlencode }}"
+                       class="group relative flex items-center justify-between px-5 py-6 rounded-2xl border transition-all transform hover:-translate-y-0.5 {% if filtre == 'statut_adhesion' and valeur == item.statut_adhesion %}bg-lupopo-blue text-white border-blue-600 shadow-md{% else %}bg-gray-50 text-gray-700 border-gray-200 hover:bg-white hover:border-lupopo-yellow hover:shadow-sm{% endif %}">
+                        <div class="flex items-center">
+                            <i class="fas fa-tag text-2xl mr-4 {% if filtre == 'statut_adhesion' and valeur == item.statut_adhesion %}text-white/70{% else %}text-lupopo-yellow{% endif %}"></i>
+                            <span class="font-bold text-lg capitalize">{{ item.statut_adhesion|replace:"_":" "|default:"Non Renseigné" }}</span>
+                        </div>
+                        <div class="flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center font-black text-lg {% if filtre == 'statut_adhesion' and valeur == item.statut_adhesion %}bg-white/20 text-white shadow-inner{% else %}bg-white text-gray-900 border border-gray-200 shadow-sm group-hover:ring-2 group-hover:ring-lupopo-yellow/50{% endif %}">
+                            {{ item.total }}
+                        </div>
+                    </a>
+                    {% empty %}
+                    <div class="col-span-full py-12 text-center text-gray-500">Aucune donnée disponible pour les adhésions.</div>
+                    {% endfor %}
+                </div>
+
+                <!-- Sexe -->
+                <div x-show="tab === 'sexe'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 transform translate-y-2" x-transition:enter-end="opacity-100 transform translate-y-0" class="grid grid-cols-1 sm:grid-cols-2 gap-6" style="display: none;">
+                    {% for item in sexe_count %}
+                    <a href="?filtre=sexe&valeur={{ item.sexe|urlencode }}"
+                       class="group flex items-center justify-between p-6 rounded-3xl border transition-all transform hover:-translate-y-1 {% if filtre == 'sexe' and valeur == item.sexe %}bg-lupopo-blue text-white border-blue-600 shadow-lg{% else %}bg-white text-gray-800 border-gray-200 hover:border-lupopo-blue hover:shadow-md{% endif %}">
+                        <div class="flex items-center">
+                            <div class="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl mr-5 {% if filtre == 'sexe' and valeur == item.sexe %}bg-white/20 text-white{% else %}bg-gray-50 text-gray-400 group-hover:bg-blue-50 group-hover:text-lupopo-blue{% endif %}">
+                                {% if item.sexe == "M" %}<i class="fas fa-mars"></i>{% elif item.sexe == "F" %}<i class="fas fa-venus"></i>{% else %}<i class="fas fa-venus-mars"></i>{% endif %}
+                            </div>
+                            <div>
+                                <p class="text-sm font-semibold uppercase tracking-wider {% if filtre == 'sexe' and valeur == item.sexe %}text-blue-100{% else %}text-gray-400{% endif %}">Genre</p>
+                                <span class="font-bold text-2xl">
+                                    {% if item.sexe == "M" %}Masculin{% elif item.sexe == "F" %}Féminin{% else %}Non Renseigné{% endif %}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-4xl font-black font-mono {% if filtre == 'sexe' and valeur == item.sexe %}text-white{% else %}text-lupopo-blue{% endif %} tracking-tighter">
+                                {{ item.total }}
+                            </div>
+                            <p class="text-sm font-medium mt-1 {% if filtre == 'sexe' and valeur == item.sexe %}text-blue-200{% else %}text-gray-500{% endif %}">personnes</p>
+                        </div>
+                    </a>
+                    {% empty %}
+                    <div class="col-span-full py-12 text-center text-gray-500">Aucune donnée disponible pour les genres.</div>
+                    {% endfor %}
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- Alpine.js is already included globally in the base layout based on our architecture, but leaving this just in case if there is no global include -->
+<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+<style>
+    .scrollbar-hide::-webkit-scrollbar {
+        display: none;
+    }
+    .scrollbar-hide {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+</style>
+{% endblock %} {% endcomment %}

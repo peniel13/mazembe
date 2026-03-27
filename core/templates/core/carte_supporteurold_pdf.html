@@ -1,0 +1,291 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Carte Supporteur</title>
+
+<style>
+
+body{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    flex-direction:column;
+    font-family:Arial, sans-serif;
+    margin:0;
+}
+
+.page{
+    width:600px;
+    height:350px;
+    margin:40px auto;
+    position:relative;
+    page-break-after:always;
+}
+
+/* carte */
+.id-card{
+    width:100%;
+    height:100%;
+    background:white;
+    border:2px solid #ccc;
+    border-radius:10px;
+    padding:20px;
+    box-shadow:0 0 10px rgba(0,0,0,0.3);
+    position:relative;
+    display:flex;
+    overflow:hidden;
+}
+
+/* fond */
+.id-card::before{
+    content:"";
+    position:absolute;
+    top:0;
+    left:0;
+    right:0;
+    bottom:0;
+    background: 
+        linear-gradient(rgba(30,64,175,0.8), rgba(37,99,235,0.8)),
+        url('{{ fondudps }}');
+    background-size:cover;
+    background-position:center;
+}
+{% comment %} .id-card::before{
+    content:"";
+    position:absolute;
+    top:0;
+    left:0;
+    right:0;
+    bottom:0;
+    background-image:url('{{ fondudps }}');
+    background-size:cover;
+    background-position:center;
+    opacity:0.15;
+} {% endcomment %}
+
+.id-card>*{
+    position:relative;
+    z-index:1;
+}
+
+/* logo */
+.flag{
+    position:absolute;
+    top:10px;
+    left:20px;
+    width:60px;
+    height:60px;
+    background:url('{{ logo_udps }}') no-repeat center;
+    background-size:contain;
+}
+
+/* photo */
+.photo{
+    width:150px;
+    height:180px;
+    margin-right:20px;
+    border:1px solid #999;
+    background-size:cover;
+    background-position:center;
+}
+
+/* infos */
+.info{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    font-size:14px;
+}
+
+.info h3{
+    margin-top:0;
+    font-size:20px;
+    color:#eab308; /* jaune un peu plus profond (pro) */
+}
+{% comment %} .info h3{
+    margin-top:0;
+    font-size:20px;
+    color:#1e40af;
+} {% endcomment %}
+
+.label{
+    font-weight:bold;
+}
+
+{% comment %} /* bas */
+.bottom-info{
+    margin-top:auto;
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+} {% endcomment %}
+/* bas */
+.bottom-info{
+    display:flex;
+    flex-direction:column;
+    gap:4px; /* petit espacement entre les lignes */
+    /* margin-top:auto; supprimé pour que tout reste visible */
+}
+/* signature */
+.signature{
+    position:absolute;
+    bottom:20px;
+    right:20px;
+    text-align:center;
+    font-style:italic;
+}
+
+.signature img{
+    width:100px;
+}
+
+/* qr */
+.qr{
+    position:absolute;
+    bottom:20px;
+    left:20px;
+    width:80px;
+    height:80px;
+}
+
+/* verso */
+.verso{
+    width:100%;
+    height:100%;
+    background:white;
+    border:2px solid #ccc;
+    border-radius:10px;
+    padding:20px;
+    text-align:center;
+    position:relative;
+    overflow:hidden;
+}
+.verso::before{
+    content:"";
+    position:absolute;
+    top:0;
+    left:0;
+    right:0;
+    bottom:0;
+    background: 
+        linear-gradient(rgba(30,64,175,0.8), rgba(37,99,235,0.8)),
+        url('{{ coter }}');
+    background-size:cover;
+    background-position:center;
+}
+{% comment %} .verso::before{
+    content:"";
+    position:absolute;
+    top:0;
+    left:0;
+    right:0;
+    bottom:0;
+    background-image:url('{{ coter }}');
+    background-size:cover;
+    background-position:center;
+    opacity:0.15;
+} {% endcomment %}
+
+.verso>*{
+    position:relative;
+    z-index:1;
+}
+
+.verso h2{
+    margin:10px 0;
+    font-size:22px;
+    color:#eab308; /* jaune un peu plus profond (pro) */
+}
+
+.verso p{
+    font-size:14px;
+    line-height:1.5;
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- RECTO -->
+<div class="page">
+
+<div class="id-card">
+
+<div class="flag"></div>
+
+{% if supporteur.photo %}
+<div class="photo" style="background-image:url('{{ MEDIA_URL }}{{ supporteur.photo }}');"></div>
+{% else %}
+<div class="photo"></div>
+{% endif %}
+
+<div class="info">
+
+<h3>CARTE SAINT ELOI</h3>
+
+<p><span class="label">Prénom :</span> {{ supporteur.prenom }}</p>
+<p><span class="label">Nom :</span> {{ supporteur.nom }}</p>
+
+<p><span class="label">Postnom :</span> {{ supporteur.postnom }}</p>
+
+<p><span class="label">Numéro :</span> {{ supporteur.numero_supporteur }}</p>
+
+<p><span class="label">Statut :</span> {{ supporteur.get_statut_adhesion_display }}</p>
+
+<div class="bottom-info">
+    <p><span class="label">Province :</span> {{ supporteur.province }}</p>
+    <p><span class="label">Ville :</span> {{ supporteur.ville }}</p>
+    <p><span class="label">Sexe :</span> {{ supporteur.get_sexe_display  }}</p>
+    <p><span class="label">Date création :</span> {{ supporteur.date_creation }}</p>
+</div>
+
+</div>
+
+<div class="signature">
+
+<p>Signature autorisée</p>
+
+{% if signature %}
+<img src="{{ signature }}">
+{% endif %}
+
+</div>
+
+{% if supporteur.qr_code %}
+<img src="{{ MEDIA_URL }}{{ supporteur.qr_code }}" class="qr">
+{% endif %}
+
+</div>
+</div>
+
+<!-- VERSO -->
+
+<div class="page">
+
+<div class="verso">
+
+<h2>CARTE OFFICIELLE SUPPORTER</h2>
+
+<p>
+
+Cette carte confirme l'adhésion officielle du détenteur au programme des supporteurs.
+
+Elle est personnelle et ne peut être utilisée par une autre personne.
+
+Toute falsification peut entraîner l'annulation immédiate de cette carte.
+
+</p>
+
+{% if udps_logo %}
+<img src="{{ udps_logo }}" width="120">
+{% endif %}
+
+</div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Liste des Supporteurs - FC Saint Eloi Lupopo{% endblock %}
+
+{% block content %}
+<div class="min-h-[85vh] bg-gray-50 py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <!-- Header & Search -->
+        <div class="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-gray-100 mb-10">
+            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+                <div>
+                    <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">Supporteurs</h1>
+                    <p class="mt-2 text-gray-500">
+                        {% if query %}
+                            <span class="font-medium text-lupopo-blue">{{ supporteurs.paginator.count }}</span> résultat(s) pour "<span class="italic">{{ query }}</span>"
+                        {% else %}
+                            Base de données officielle : <span class="font-medium text-lupopo-blue">{{ supporteurs.paginator.count }}</span> membres
+                        {% endif %}
+                    </p>
+                </div>
+                
+                <div class="w-full lg:w-1/2">
+                    <form method="get" class="relative group">
+                        <div class="absolute -inset-1 bg-gradient-to-r from-lupopo-blue to-lupopo-yellow rounded-full blur opacity-20 group-hover:opacity-40 transition duration-500"></div>
+                        <div class="relative flex items-center bg-white rounded-full shadow-sm border border-gray-200 p-1.5 focus-within:ring-2 focus-within:ring-lupopo-blue focus-within:border-transparent">
+                            <div class="pl-4 pr-2 text-gray-400">
+                                <i class="fas fa-search text-lg"></i>
+                            </div>
+                            <input type="text" name="q" placeholder="Rechercher par N° de supporteur..." value="{{ query|default:'' }}" class="flex-grow px-2 py-2.5 text-gray-700 bg-transparent focus:outline-none text-base w-full">
+                            <button type="submit" class="flex-shrink-0 w-12 h-12 bg-lupopo-blue text-white rounded-full flex items-center justify-center hover:bg-lupopo-dark shadow-md transition-colors duration-300">
+                                <i class="fas fa-arrow-right"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Supporters Grid -->
+        <div id="mes-supporteurs" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {% for supporteur in supporteurs %}
+            <div class="bg-white rounded-2xl p-5 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] border border-gray-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group flex flex-col h-full">
+                
+                <div class="flex items-start gap-4 mb-4">
+                    <!-- Photo -->
+                    <div class="relative flex-shrink-0">
+                        {% if supporteur.photo %}
+                            <img src="{{ supporteur.photo.url }}" alt="{{ supporteur.prenom }}" class="w-16 h-16 object-cover rounded-xl shadow-sm border border-gray-100 group-hover:border-lupopo-yellow transition-colors">
+                        {% else %}
+                            <div class="w-16 h-16 bg-gray-50 rounded-xl flex items-center justify-center text-gray-400 border border-gray-200 group-hover:border-lupopo-yellow transition-colors">
+                                <i class="fas fa-user text-2xl"></i>
+                            </div>
+                        {% endif %}
+                        <!-- Status Badge Overlay -->
+                        <div class="absolute -bottom-2 -right-2">
+                            {% if supporteur.statut == 'valid' %}
+                                <div class="w-6 h-6 rounded-full bg-green-500 border-2 border-white flex items-center justify-center text-white shadow-sm" title="Valide">
+                                    <i class="fas fa-check text-[10px]"></i>
+                                </div>
+                            {% elif supporteur.statut == 'pending' %}
+                                <div class="w-6 h-6 rounded-full bg-yellow-400 border-2 border-white flex items-center justify-center text-white shadow-sm" title="En attente">
+                                    <i class="fas fa-hourglass-half text-[10px]"></i>
+                                </div>
+                            {% else %}
+                                <div class="w-6 h-6 rounded-full bg-red-500 border-2 border-white flex items-center justify-center text-white shadow-sm" title="Bloqué">
+                                    <i class="fas fa-times text-[10px]"></i>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Info -->
+                    <div class="flex-1 min-w-0 pt-1">
+                        <h3 class="font-bold text-gray-900 truncate" title="{{ supporteur.prenom }} {{ supporteur.nom }} {{ supporteur.postnom }}">
+                            {{ supporteur.prenom }} {{ supporteur.nom }}
+                        </h3>
+                        <p class="text-xs text-gray-500 mb-1 truncate">{{ supporteur.postnom }}</p>
+                        <div class="inline-flex items-center px-2 py-0.5 rounded text-xs font-mono font-medium {% if supporteur.statut == 'valid' %}bg-green-50 text-green-700{% elif supporteur.statut == 'pending' %}bg-yellow-50 text-yellow-700{% else %}bg-red-50 text-red-700{% endif %}">
+                            ID: {{ supporteur.numero_supporteur }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="mt-auto pt-4 flex gap-2 border-t border-gray-50">
+                    <a href="{% url 'supporteur_detail' supporteur.id %}" class="flex-1 inline-flex items-center justify-center px-3 py-2 text-xs font-semibold rounded-lg text-gray-700 bg-gray-50 hover:bg-gray-100 hover:text-lupopo-blue border border-gray-200 transition-colors">
+                        <i class="far fa-eye mr-1.5"></i> Détails
+                    </a>
+                    {% if supporteur.statut == 'valid' %}
+                    <a href="{% url 'telecharger_carte_supporteur_image' supporteur.id %}" class="flex-1 inline-flex items-center justify-center px-3 py-2 text-xs font-semibold rounded-lg text-white bg-lupopo-blue hover:bg-lupopo-dark shadow-sm transition-colors">
+                        <i class="fas fa-download mr-1.5 text-lupopo-yellow"></i> Carte
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-span-full py-12 text-center bg-white rounded-3xl border border-gray-100 shadow-sm">
+                <div class="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-300">
+                    <i class="fas fa-search text-3xl"></i>
+                </div>
+                <h3 class="text-lg font-medium text-gray-900 mb-1">Aucun supporteur trouvé</h3>
+                <p class="text-gray-500 text-sm">Essayez de modifier vos critères de recherche.</p>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if supporteurs.has_other_pages %}
+        <div class="mt-12 flex justify-center">
+            <nav class="inline-flex rounded-xl shadow-sm bg-white border border-gray-200 p-1 gap-1" aria-label="Pagination">
+                {% if supporteurs.has_previous %}
+                    <a href="?page=1{% if query %}&q={{ query }}{% endif %}#mes-supporteurs" class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-500 hover:text-lupopo-blue hover:bg-blue-50 rounded-lg transition-colors" title="Première page">
+                        <i class="fas fa-angle-double-left"></i>
+                    </a>
+                    <a href="?page={{ supporteurs.previous_page_number }}{% if query %}&q={{ query }}{% endif %}#mes-supporteurs" class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-500 hover:text-lupopo-blue hover:bg-blue-50 rounded-lg transition-colors">
+                        <i class="fas fa-angle-left mr-1"></i> Précédent
+                    </a>
+                {% endif %}
+
+                <!-- Current Page -->
+                <span class="inline-flex items-center px-4 py-2 text-sm font-bold text-lupopo-dark bg-lupopo-yellow rounded-lg shadow-sm">
+                    {{ supporteurs.number }}
+                </span>
+
+                {% if supporteurs.number < supporteurs.paginator.num_pages %}
+                    <a href="?page={{ supporteurs.paginator.num_pages }}{% if query %}&q={{ query }}{% endif %}#mes-supporteurs" class="hidden sm:inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 hover:text-lupopo-blue hover:bg-blue-50 rounded-lg transition-colors border border-transparent hover:border-blue-100">
+                        {{ supporteurs.paginator.num_pages }}
+                    </a>
+                {% endif %}
+
+                {% if supporteurs.has_next %}
+                    <a href="?page={{ supporteurs.next_page_number }}{% if query %}&q={{ query }}{% endif %}#mes-supporteurs" class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-500 hover:text-lupopo-blue hover:bg-blue-50 rounded-lg transition-colors">
+                        Suivant <i class="fas fa-angle-right ml-1"></i>
+                    </a>
+                    <a href="?page={{ supporteurs.paginator.num_pages }}{% if query %}&q={{ query }}{% endif %}#mes-supporteurs" class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-500 hover:text-lupopo-blue hover:bg-blue-50 rounded-lg transition-colors" title="Dernière page">
+                        <i class="fas fa-angle-double-right"></i>
+                    </a>
+                {% endif %}
+            </nav>
+        </div>
+        {% endif %}
+
+    </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    const query = "{{ query|default:'' }}";
+    if(query) {
+      const cartes = document.getElementById("mes-supporteurs");
+      if(cartes) {
+        cartes.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }
+  });
+</script>
+{% endblock %}

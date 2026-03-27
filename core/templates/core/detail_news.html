@@ -1,0 +1,287 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}{{ news.title }} - Actualités FC Saint Eloi Lupopo{% endblock %}
+
+{% block content %}
+
+<!-- Hero/Banner Section for News -->
+<section class="relative bg-lupopo-dark pt-24 pb-16 overflow-hidden">
+    <!-- Background Image with Overlay -->
+    <div class="absolute inset-0 z-0">
+        {% if news.media_file and news.media_type == 'photo' %}
+            <img src="{{ news.media_file.url }}" alt="Background" class="w-full h-full object-cover opacity-20 blur-sm mix-blend-luminosity">
+        {% else %}
+            <img src="{% static 'img/supporteurlumpa.jpg' %}" alt="Background" class="w-full h-full object-cover opacity-20 blur-sm mix-blend-luminosity">
+        {% endif %}
+        <div class="absolute inset-0 bg-gradient-to-t from-gray-50 via-lupopo-dark/90 to-lupopo-dark/80 text-white"></div>
+    </div>
+
+    <div class="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center pt-8">
+        <!-- Date Badge -->
+        <span class="inline-flex items-center px-3 py-1 rounded-full bg-white/10 border border-white/20 text-white text-sm font-medium backdrop-blur-md mb-6">
+            <i class="far fa-calendar-alt mr-2 text-lupopo-yellow"></i> {{ news.created_at|date:"d M Y à H:i" }}
+        </span>
+        
+        <h1 class="text-3xl md:text-5xl font-extrabold text-white tracking-tight mb-8 leading-tight drop-shadow-lg">
+            {{ news.title }}
+        </h1>
+        
+        <!-- Author Info -->
+        <div class="flex items-center justify-center">
+            <div class="flex items-center space-x-3 bg-white/5 pr-4 pl-1 py-1 rounded-full border border-white/10 backdrop-blur-sm">
+                {% if news.author.profile.profile_pic %}
+                    <img src="{{ news.author.profile.profile_pic.url }}" class="w-10 h-10 rounded-full object-cover border-2 border-lupopo-yellow">
+                {% else %}
+                    <div class="w-10 h-10 rounded-full bg-lupopo-blue border-2 border-lupopo-yellow flex items-center justify-center text-white font-bold text-sm">
+                        {{ news.author.get_full_name|slice:":1"|upper|default:"A" }}
+                    </div>
+                {% endif %}
+                <div class="text-left">
+                    <p class="text-sm font-bold text-white">{{ news.author.get_full_name }}</p>
+                    <p class="text-xs text-gray-300">Auteur</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Main Content Area -->
+<div class="min-h-screen bg-gray-50 py-10 relative z-20">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <!-- Article Content -->
+        <article class="bg-white rounded-3xl shadow-xl shadow-gray-200/50 p-6 md:p-10 mb-10 border border-gray-100 transform -translate-y-12">
+            
+            <!-- Media Attachment -->
+            {% if news.media_file %}
+                <div class="mb-8 rounded-2xl overflow-hidden shadow-lg border border-gray-100">
+                {% if news.media_type == 'photo' %}
+                    <img src="{{ news.media_file.url }}" class="w-full max-h-[500px] object-cover hover:scale-105 transition-transform duration-700">
+                {% elif news.media_type == 'video' %}
+                    <video controls class="w-full object-cover bg-black max-h-[500px]" poster="">
+                        <source src="{{ news.media_file.url }}" type="video/mp4">
+                        Votre navigateur ne supporte pas la lecture de vidéos.
+                    </video>
+                {% endif %}
+                </div>
+            {% endif %}
+
+            <!-- Text Content -->
+            {% if news.content %}
+                <div class="prose prose-lg max-w-none text-gray-700 leading-relaxed mb-10">
+                    {{ news.content|linebreaks }}
+                </div>
+            {% endif %}
+
+            <!-- Actions (Like & Share) -->
+            <div class="flex flex-col sm:flex-row items-center justify-between pt-6 border-t border-gray-100 gap-4">
+                <form method="post" class="flex items-center">
+                    {% csrf_token %}
+                    <button type="submit" name="like_news" class="group flex items-center px-6 py-3 rounded-xl {% if user_has_liked %}bg-lupopo-blue text-white{% else %}bg-blue-50 text-lupopo-blue hover:bg-lupopo-blue hover:text-white{% endif %} font-bold shadow-sm transition-all transform hover:-translate-y-0.5">
+                        <i class="{% if user_has_liked %}fas{% else %}far{% endif %} fa-thumbs-up text-lg mr-2 group-hover:scale-110 transition-transform"></i>
+                        <span>{{ news.total_likes }} J'aime</span>
+                    </button>
+                </form>
+                
+                <div class="flex gap-2">
+                    <button class="w-10 h-10 rounded-full bg-gray-100 text-gray-600 hover:bg-lupopo-blue hover:text-white flex items-center justify-center transition-colors shadow-sm" title="Partager sur Facebook">
+                        <i class="fab fa-facebook-f"></i>
+                    </button>
+                    <button class="w-10 h-10 rounded-full bg-gray-100 text-gray-600 hover:bg-blue-400 hover:text-white flex items-center justify-center transition-colors shadow-sm" title="Partager sur Twitter">
+                        <i class="fab fa-twitter"></i>
+                    </button>
+                    <button class="w-10 h-10 rounded-full bg-gray-100 text-gray-600 hover:bg-green-500 hover:text-white flex items-center justify-center transition-colors shadow-sm" title="Partager sur WhatsApp">
+                        <i class="fab fa-whatsapp"></i>
+                    </button>
+                </div>
+            </div>
+        </article>
+
+        <!-- Comments Section -->
+        <div id="comments" class="scroll-mt-24">
+            
+            <div class="flex items-center justify-between mb-8">
+                <h2 class="text-2xl font-bold text-gray-900 flex items-center">
+                    <i class="far fa-comments text-lupopo-yellow mr-3 text-3xl"></i>
+                    Commentaires <span class="text-gray-400 font-normal ml-2">({{ news.total_comments }})</span>
+                </h2>
+            </div>
+            
+            <!-- New Comment Form -->
+            <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 md:p-8 mb-10">
+                <h3 class="font-bold text-gray-900 mb-4">Laissez votre avis</h3>
+                <form method="post" action="#comments">
+                    {% csrf_token %}
+                    <div class="flex gap-4">
+                        <div class="hidden sm:block flex-shrink-0">
+                            {% if request.user.profile_pic %}
+                                <img src="{{ request.user.profile_pic.url }}" class="w-10 h-10 rounded-full object-cover border border-gray-200">
+                            {% else %}
+                                <div class="w-10 h-10 rounded-full bg-gray-100 border border-gray-200 flex items-center justify-center text-gray-500 font-bold">
+                                    {{ request.user.first_name|default:request.user.username|slice:":1"|upper }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="flex-1">
+                            <textarea name="content" rows="3" required class="w-full bg-gray-50 border border-gray-200 p-4 rounded-2xl mb-3 focus:bg-white focus:ring-2 focus:ring-lupopo-yellow focus:border-transparent transition-all resize-none outline-none" placeholder="Partagez vos impressions sur cette actualité..."></textarea>
+                            <div class="flex justify-end">
+                                <button type="submit" name="comment_submit" class="px-6 py-2.5 bg-lupopo-blue text-white font-bold rounded-xl hover:bg-lupopo-dark shadow-md transition-all transform hover:-translate-y-0.5 flex items-center">
+                                    <i class="fas fa-paper-plane mr-2"></i> Publier
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Comments List -->
+            <div class="space-y-6 mb-10">
+                {% for comment in comments %}
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                    
+                    <!-- Comment Header -->
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center">
+                            {% if comment.author.profile.profile_pic %}
+                                <img src="{{ comment.author.profile.profile_pic.url }}" class="w-10 h-10 rounded-full mr-3 object-cover border border-gray-100">
+                            {% else %}
+                                <div class="w-10 h-10 rounded-full bg-blue-50 text-lupopo-blue mr-3 flex items-center justify-center font-bold border border-gray-100">
+                                    {{ comment.author.get_full_name|slice:":1"|upper|default:"U" }}
+                                </div>
+                            {% endif %}
+                            <div>
+                                <p class="font-bold text-gray-900 text-sm">{{ comment.author.get_full_name }}</p>
+                                <p class="text-xs text-gray-400 flex items-center"><i class="far fa-clock mr-1"></i> {{ comment.created_at|date:"d M Y, H:i" }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Comment Body -->
+                    <p class="text-gray-700 text-sm mb-4 leading-relaxed">{{ comment.content|linebreaksbr }}</p>
+
+                    <!-- Interaction Buttons -->
+                    <div class="flex items-center gap-4 text-sm font-medium">
+                        <button class="text-gray-500 hover:text-lupopo-blue transition-colors reply-toggle flex items-center" data-comment="{{ comment.id }}">
+                            <i class="fa-solid fa-reply mr-1.5"></i> Répondre
+                        </button>
+                        
+                        {% if comment.replies.count %}
+                        <button class="text-lupopo-yellow hover:text-yellow-600 transition-colors toggle-replies flex items-center" data-comment="{{ comment.id }}">
+                            <i class="fas fa-chevron-down mr-1.5 text-[10px] transition-transform" id="icon-replies-{{ comment.id }}"></i>
+                            <span id="text-replies-{{ comment.id }}">Voir {{ comment.replies.count }} réponse{% if comment.replies.count > 1 %}s{% endif %}</span>
+                        </button>
+                        {% endif %}
+                    </div>
+
+                    <!-- Reply Form (Hidden by default) -->
+                    <div class="reply-form hidden mt-4 pl-4 sm:pl-12" id="reply-form-{{ comment.id }}">
+                        <form method="post" action="#comments">
+                            {% csrf_token %}
+                            <div class="flex gap-3">
+                                <textarea name="content" rows="2" required class="w-full bg-gray-50 border border-gray-200 p-3 rounded-xl focus:bg-white focus:ring-2 focus:ring-lupopo-yellow focus:border-transparent transition-all resize-none outline-none text-sm" placeholder="Votre réponse..."></textarea>
+                                <input type="hidden" name="reply_to" value="{{ comment.id }}">
+                                <button type="submit" name="reply_submit" class="self-end px-4 py-2 bg-gray-900 text-white font-semibold rounded-xl hover:bg-black shadow-sm transition-all transform hover:-translate-y-0.5 text-sm">
+                                    Envoyer
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Nested Replies -->
+                    {% if comment.replies.count %}
+                    <div class="replies hidden mt-4 pl-4 sm:pl-12 space-y-4 border-l-2 border-gray-100" id="replies-{{ comment.id }}">
+                        {% for reply in comment.replies.all %}
+                        <div class="pt-2">
+                            <div class="flex items-start mb-1">
+                                {% if reply.author.profile.profile_pic %}
+                                    <img src="{{ reply.author.profile.profile_pic.url }}" class="w-8 h-8 rounded-full mr-2 object-cover border border-gray-100">
+                                {% else %}
+                                    <div class="w-8 h-8 rounded-full bg-gray-100 text-gray-500 mr-2 flex items-center justify-center font-bold text-xs border border-gray-200">
+                                        {{ reply.author.get_full_name|slice:":1"|upper|default:"U" }}
+                                    </div>
+                                {% endif %}
+                                <div class="bg-gray-50 rounded-2xl rounded-tl-none p-3 border border-gray-100 flex-1">
+                                    <div class="flex justify-between items-baseline mb-1">
+                                        <p class="font-bold text-gray-900 text-xs">{{ reply.author.get_full_name }}</p>
+                                        <p class="text-[10px] text-gray-400">{{ reply.created_at|date:"d M, H:i" }}</p>
+                                    </div>
+                                    <p class="text-gray-700 text-sm leading-snug">{{ reply.content|linebreaksbr }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                </div>
+                {% empty %}
+                <div class="text-center py-10 bg-white rounded-3xl border border-gray-100 shadow-sm border-dashed">
+                    <div class="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-3 text-gray-300">
+                        <i class="far fa-comment-dots text-2xl"></i>
+                    </div>
+                    <p class="text-gray-500 font-medium">Soyez le premier à commenter cette actualité.</p>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Pagination Comments -->
+            {% if comments.has_other_pages %}
+            <div class="mt-8 flex justify-center">
+                <nav class="inline-flex rounded-xl shadow-sm bg-white border border-gray-200 p-1 gap-1">
+                    {% if comments.has_previous %}
+                    <a href="?page={{ comments.previous_page_number }}#comments" class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-500 hover:text-lupopo-blue hover:bg-blue-50 rounded-lg transition-colors">
+                        <i class="fas fa-angle-left mr-1"></i> Précédent
+                    </a>
+                    {% endif %}
+                    
+                    <span class="inline-flex items-center px-4 py-2 text-sm font-bold text-lupopo-dark bg-lupopo-yellow rounded-lg shadow-sm">
+                        {{ comments.number }}
+                    </span>
+                    
+                    {% if comments.has_next %}
+                    <a href="?page={{ comments.next_page_number }}#comments" class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-500 hover:text-lupopo-blue hover:bg-blue-50 rounded-lg transition-colors">
+                        Suivant <i class="fas fa-angle-right ml-1"></i>
+                    </a>
+                    {% endif %}
+                </nav>
+            </div>
+            {% endif %}
+
+        </div>
+    </div>
+</div>
+
+<!-- JS form interactions -->
+<script>
+document.querySelectorAll(".reply-toggle").forEach(button => {
+    button.addEventListener("click", () => {
+        const id = button.getAttribute("data-comment");
+        const form = document.getElementById("reply-form-" + id);
+        form.classList.toggle("hidden");
+        if(!form.classList.contains("hidden")) {
+            form.querySelector("textarea").focus();
+        }
+    });
+});
+
+document.querySelectorAll(".toggle-replies").forEach(button => {
+    button.addEventListener("click", () => {
+        const id = button.getAttribute("data-comment");
+        const replies = document.getElementById("replies-" + id);
+        const textSpan = document.getElementById("text-replies-" + id);
+        const icon = document.getElementById("icon-replies-" + id);
+        
+        replies.classList.toggle("hidden");
+        
+        if (replies.classList.contains("hidden")) {
+            textSpan.innerText = textSpan.innerText.replace("Cacher", "Voir");
+            icon.style.transform = "rotate(0deg)";
+        } else {
+            textSpan.innerText = textSpan.innerText.replace("Voir", "Cacher");
+            icon.style.transform = "rotate(180deg)";
+        }
+    });
+});
+</script>
+
+{% endblock %}

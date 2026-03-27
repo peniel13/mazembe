@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 py-10">
+  <div class="max-w-5xl mx-auto px-4">
+
+    <!-- Card formulaire -->
+    <div class="bg-white shadow-lg rounded-2xl p-6 md:p-8 transition-all duration-300">
+      <div class="flex items-center justify-between mb-4">
+        <h1 class="text-xl md:text-2xl font-semibold text-gray-900">Modifier la carte supporteur</h1>
+      </div>
+
+      <!-- Messages Django -->
+      {% if messages %}
+        <div class="mb-4 space-y-2">
+          {% for message in messages %}
+            <div class="p-3 rounded-lg text-sm {% if message.tags == 'success' %}bg-green-50 text-green-800 border border-green-200{% else %}bg-yellow-50 text-yellow-800 border border-yellow-200{% endif %}">
+              {{ message }}
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <!-- Formulaire -->
+      <form method="POST" enctype="multipart/form-data" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {% csrf_token %}
+
+        <!-- Colonne gauche : infos supporteur -->
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Prénom</label>
+            {% render_field form.prenom class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" %}
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Nom</label>
+            {% render_field form.nom class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" %}
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Postnom</label>
+            {% render_field form.postnom class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" %}
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Téléphone</label>
+            {% render_field form.telephone class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" %}
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Province</label>
+            {% render_field form.province class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" %}
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Ville</label>
+            {% render_field form.ville class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" %}
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Commune</label>
+            {% render_field form.commune class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" %}
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Sexe</label>
+            {% render_field form.sexe class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" %}
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Type d’adhésion</label>
+            {% render_field form.statut_adhesion class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" %}
+          </div>
+        </div>
+
+        <!-- Colonne droite : photo supporteur -->
+        <div class="space-y-6">
+          <div>
+            <label class="block text-sm font-medium text-gray-700">Photo</label>
+            <div class="mt-2 flex items-center gap-2">
+              <button type="button" id="openPhotoCameraBtn" class="px-3 py-2 bg-indigo-600 text-white rounded-lg">Ouvrir caméra</button>
+              <button type="button" id="capturePhotoBtn" class="px-3 py-2 bg-green-600 text-white rounded-lg hidden">Capturer</button>
+              <button type="button" id="retakePhotoBtn" class="px-3 py-2 bg-yellow-500 text-white rounded-lg hidden">Reprendre</button>
+              <button type="button" id="choosePhotoBtn" class="px-3 py-2 border rounded-lg">Choisir un fichier</button>
+            </div>
+            <input type="file" id="photoInput" name="photo" accept="image/*" class="hidden">
+            <div class="mt-3">
+              <video id="photoVideo" autoplay playsinline class="hidden w-40 h-40 rounded-lg object-cover border"></video>
+              <canvas id="photoCanvas" class="hidden"></canvas>
+              {% if supporteur.photo %}
+              <img id="photoPreview" src="{{ supporteur.photo.url }}" class="w-40 h-40 object-cover rounded-xl ring-1 ring-gray-200">
+              {% else %}
+              <img id="photoPreview" class="hidden w-40 h-40 object-cover rounded-xl ring-1 ring-gray-200">
+              {% endif %}
+            </div>
+          </div>
+        </div>
+
+        <!-- Bouton -->
+        <div class="md:col-span-2">
+          <button type="submit" class="w-full py-2 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500">
+            Enregistrer les modifications
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  // --- Gestion photo (même logique que la création) ---
+  const photoInput = document.getElementById('photoInput');
+  const photoPreview = document.getElementById('photoPreview');
+  if (photoInput) photoInput.addEventListener('change', e => {
+    const [file] = e.target.files || [];
+    if (file) { photoPreview.src = URL.createObjectURL(file); photoPreview.classList.remove('hidden'); }
+  });
+
+  const streams = {};
+  async function startCamera(target, facingMode = "environment") {
+    const video = document.getElementById(`${target}Video`);
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { alert("Caméra non supportée"); return; }
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode } });
+      streams[target] = stream;
+      video.srcObject = stream;
+      video.classList.remove("hidden");
+      document.getElementById(`capture${target.charAt(0).toUpperCase() + target.slice(1)}Btn`).classList.remove("hidden");
+    } catch (err) { console.error(err); alert("Impossible d'accéder à la caméra"); }
+  }
+  function stopCamera(target) {
+    const s = streams[target];
+    if (s) s.getTracks().forEach(t => t.stop());
+    const video = document.getElementById(`${target}Video`);
+    if (video) { video.pause(); video.srcObject = null; video.classList.add("hidden"); }
+  }
+  function captureImage(target) {
+    const video = document.getElementById(`${target}Video`);
+    const canvas = document.getElementById(`${target}Canvas`);
+    const preview = document.getElementById(`${target}Preview`);
+    if (!video || !canvas || !preview) return;
+    canvas.width = video.videoWidth || 1280;
+    canvas.height = video.videoHeight || 720;
+    canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+    canvas.toBlob(blob => {
+      const file = new File([blob], `${target}_${Date.now()}.jpg`, { type: 'image/jpeg' });
+      const dt = new DataTransfer(); dt.items.add(file);
+      document.getElementById(`${target}Input`).files = dt.files;
+      preview.src = URL.createObjectURL(file);
+      preview.classList.remove("hidden");
+      stopCamera(target);
+    }, 'image/jpeg', 0.95);
+  }
+  function setupControls(target) {
+    document.getElementById(`open${target.charAt(0).toUpperCase() + target.slice(1)}CameraBtn`).addEventListener('click', () => startCamera(target));
+    document.getElementById(`capture${target.charAt(0).toUpperCase() + target.slice(1)}Btn`).addEventListener('click', () => captureImage(target));
+    document.getElementById(`retake${target.charAt(0).toUpperCase() + target.slice(1)}Btn`).addEventListener('click', () => {
+      document.getElementById(`${target}Preview`).classList.add("hidden");
+      startCamera(target);
+    });
+    document.getElementById(`choose${target.charAt(0).toUpperCase() + target.slice(1)}Btn`).addEventListener('click', () => {
+      document.getElementById(`${target}Input`).click();
+    });
+  }
+  setupControls('photo');
+</script>
+
+{% endblock %}

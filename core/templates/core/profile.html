@@ -1,0 +1,269 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Mon Profil - FC Saint Eloi Lupopo{% endblock %}
+
+{% block content %}
+<!-- Profile Header Banner -->
+<section class="relative bg-lupopo-dark pt-32 pb-24 overflow-hidden">
+    <!-- Background Image with Overlay -->
+    <div class="absolute inset-0 z-0">
+        <img src="{% static 'img/supporteurlumpa.jpg' %}" alt="Stade" class="w-full h-full object-cover opacity-30 mix-blend-luminosity">
+        <div class="absolute inset-0 bg-gradient-to-t from-gray-50 via-lupopo-dark/80 to-lupopo-dark/90 text-white"></div>
+    </div>
+
+    <!-- Banner Content -->
+    <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-col md:flex-row items-center md:items-end gap-6 text-center md:text-left">
+            
+            <!-- Avatar -->
+            <div class="relative group">
+                <div class="w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-white shadow-2xl overflow-hidden bg-white z-20 relative">
+                    {% if user.profile_pic %}
+                        <img src="{{ user.profile_pic.url }}" alt="{{ user.first_name }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                    {% else %}
+                        <div class="w-full h-full bg-gradient-to-br from-lupopo-blue to-lupopo-dark flex items-center justify-center text-white text-5xl font-bold">
+                            {{ user.first_name|default:user.username|slice:":1"|upper }}
+                        </div>
+                    {% endif %}
+                </div>
+                <!-- Optional VIP Badge -->
+                <div class="absolute bottom-2 right-2 w-10 h-10 bg-lupopo-yellow rounded-full border-4 border-white flex items-center justify-center text-lupopo-dark shadow-lg z-30" title="Membre Officiel">
+                    <i class="fas fa-star text-sm"></i>
+                </div>
+            </div>
+
+            <!-- User Info -->
+            <div class="flex-1 pb-2">
+                <h1 class="text-3xl md:text-5xl font-extrabold text-white tracking-tight mb-2 drop-shadow-md">
+                    {{ user.first_name }} {{ user.last_name }}
+                </h1>
+                <p class="text-lupopo-yellow font-medium text-lg mb-4 flex items-center justify-center md:justify-start gap-2">
+                    <i class="fas fa-id-card"></i> {{ user.username }}
+                </p>
+                
+                {% if request.user.id == user.id %}
+                <div class="flex flex-wrap justify-center md:justify-start gap-3 mt-4">
+                    <a href="{% url 'update_profile' %}" class="inline-flex items-center px-5 py-2.5 rounded-xl text-sm font-semibold text-lupopo-dark bg-white hover:bg-gray-50 hover:shadow-lg transition-all transform hover:-translate-y-0.5">
+                        <i class="fas fa-pen mr-2 text-gray-400"></i> Modifier le profil
+                    </a>
+                    <a href="{% url 'mes_contributions' %}" class="inline-flex items-center px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-white/20 hover:bg-white/30 border border-white/30 backdrop-blur-md transition-all transform hover:-translate-y-0.5">
+                        <i class="fas fa-hand-holding-usd mr-2 text-lupopo-yellow"></i> Mes contributions
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Main Profile Content -->
+<div class="min-h-screen bg-gray-50 py-12 relative z-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <!-- Left Column: Personal Info & Stats -->
+            <div class="lg:col-span-1 space-y-8">
+                
+                <!-- Coordonnées Card -->
+                <div class="bg-white rounded-3xl p-6 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] border border-gray-100 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-24 h-24 bg-blue-50 rounded-bl-full -z-10"></div>
+                    <h3 class="text-lg font-bold text-gray-900 mb-6 flex items-center">
+                        <i class="fas fa-address-book text-lupopo-blue mr-3"></i> Coordonnées
+                    </h3>
+                    
+                    <ul class="space-y-4">
+                        <li class="flex items-start">
+                            <div class="flex-shrink-0 w-8 flex justify-center mt-1">
+                                <i class="fas fa-envelope text-gray-400"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-500 uppercase tracking-wider font-medium">Email</p>
+                                <p class="text-sm font-medium text-gray-900 break-all">{{ user.email|default:"Non renseigné" }}</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start">
+                            <div class="flex-shrink-0 w-8 flex justify-center mt-1">
+                                <i class="fas fa-phone text-gray-400"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-500 uppercase tracking-wider font-medium">Téléphone</p>
+                                <p class="text-sm font-medium text-gray-900">{{ user.phone|default:"Non renseigné" }}</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start">
+                            <div class="flex-shrink-0 w-8 flex justify-center mt-1">
+                                <i class="fas fa-map-marker-alt text-gray-400"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-500 uppercase tracking-wider font-medium">Adresse complète</p>
+                                <p class="text-sm font-medium text-gray-900">
+                                    {{ user.address|default:"" }}<br>
+                                    <span class="text-gray-600">
+                                        {{ user.commune_ou_contree|default:"" }}{% if user.commune_ou_contree and user.ville_ou_district %}, {% endif %}
+                                        {{ user.ville_ou_district|default:"" }}{% if user.province %} - {{ user.province }}{% endif %}
+                                    </span>
+                                </p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+               
+                {% if request.user.is_authenticated and request.user.is_acces_staf %}
+                <!-- Situation Financière Card -->
+                <div class="bg-white rounded-3xl p-6 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] border border-gray-100 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-24 h-24 bg-yellow-50 rounded-bl-full -z-10"></div>
+                    <h3 class="text-lg font-bold text-gray-900 mb-6 flex items-center">
+                        <i class="fas fa-chart-pie text-lupopo-yellow mr-3"></i> Bilan Enregistrements
+                    </h3>
+
+                    <div class="grid grid-cols-2 gap-4 mb-6">
+                        <div class="bg-gray-50 rounded-2xl p-4 text-center border border-gray-100">
+                            <span class="block text-2xl font-black text-gray-900">{{ total_supporteurs }}</span>
+                            <span class="text-xs text-gray-500 font-medium uppercase tracking-wider mt-1 block">Créés</span>
+                        </div>
+                        <div class="bg-indigo-50 rounded-2xl p-4 text-center border border-indigo-100">
+                            <span class="block text-2xl font-black text-indigo-700">{{ montant_total }}</span>
+                            <span class="text-xs text-indigo-500/80 font-medium uppercase tracking-wider mt-1 block">Dû ({{ prix.devise }})</span>
+                        </div>
+                    </div>
+
+                    <div class="space-y-3 mb-6">
+                        <div class="flex items-center justify-between text-sm">
+                            <span class="flex items-center text-gray-600"><div class="w-2 h-2 rounded-full bg-green-500 mr-2"></div> Payés</span>
+                            <span class="font-bold text-gray-900">{{ supporteurs_payes }}</span>
+                        </div>
+                        <div class="flex items-center justify-between text-sm">
+                            <span class="flex items-center text-gray-600"><div class="w-2 h-2 rounded-full bg-red-400 mr-2"></div> Non payés</span>
+                            <span class="font-bold text-gray-900">{{ supporteurs_non_payes }}</span>
+                        </div>
+                    </div>
+
+                    <!-- Actions Administrateur Finances -->
+                    {% if request.user == user %}
+                    <div class="flex flex-col gap-2 pt-4 border-t border-gray-100">
+                        {% if supporteurs_non_payes > 0 %}
+                            <a href="{% url 'payer_supporteurs' %}" class="w-full inline-flex justify-center items-center px-4 py-2.5 rounded-xl text-sm font-semibold text-white bg-lupopo-blue hover:bg-lupopo-dark shadow-md transition-colors">
+                                Payer les cartes ({{ supporteurs_non_payes }})
+                            </a>
+                        {% endif %}
+                        <a href="{% url 'paiements_supporteurs_user' user.id %}" class="w-full inline-flex justify-center items-center px-4 py-2.5 rounded-xl text-sm font-semibold text-lupopo-dark bg-lupopo-yellow hover:bg-yellow-400 shadow-sm transition-colors mt-2">
+                            Historique des paiements
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+
+            </div>
+
+            <!-- Right Column: Supporteurs List -->
+            <div class="lg:col-span-2">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+                    <h2 class="text-2xl font-bold text-gray-900">
+                        Supporteurs enregistrés <span class="text-gray-400 font-normal text-lg ml-2">({{ total_supporteurs }})</span>
+                    </h2>
+                    
+                    <!-- Search Mini -->
+                    <form method="get" class="w-full sm:w-auto relative group">
+                        <div class="absolute -inset-1 bg-gradient-to-r from-lupopo-blue to-lupopo-yellow rounded-full blur opacity-0 group-hover:opacity-20 transition duration-300"></div>
+                        <div class="relative flex items-center bg-white rounded-full border border-gray-200 p-1 focus-within:ring-2 focus-within:ring-lupopo-blue focus-within:border-transparent">
+                            <input type="text" name="q" placeholder="Chercher un supporteur..." value="{{ query|default:'' }}" class="w-48 sm:w-64 px-3 py-1.5 text-sm text-gray-700 bg-transparent focus:outline-none">
+                            <button type="submit" class="w-8 h-8 bg-gray-100 text-gray-500 rounded-full flex items-center justify-center hover:bg-lupopo-blue hover:text-white transition-colors">
+                                <i class="fas fa-search text-xs"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Grid Supporteurs -->
+                <div id="mes-cartes" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {% for supporteur in supporteurs %}
+                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow relative group">
+                        
+                        <!-- Liseré de couleur selon statut paiement -->
+                        <div class="absolute left-0 top-0 bottom-0 w-1 rounded-l-2xl {% if supporteur.paye %}bg-green-500{% else %}bg-yellow-400{% endif %}"></div>
+
+                        <div class="flex items-start gap-3 pl-2">
+                            <!-- Avatar mini -->
+                            {% if supporteur.photo %}
+                                <img src="{{ supporteur.photo.url }}" class="w-12 h-12 object-cover rounded-full border border-gray-200 flex-shrink-0">
+                            {% else %}
+                                <div class="w-12 h-12 bg-gray-100 rounded-full border border-gray-200 flex items-center justify-center text-gray-400 flex-shrink-0">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                            {% endif %}
+                            
+                            <div class="flex-1 min-w-0">
+                                <h4 class="font-bold text-gray-900 text-sm truncate" title="{{ supporteur.prenom }} {{ supporteur.nom }} {{ supporteur.postnom }}">
+                                    {{ supporteur.prenom }} {{ supporteur.nom }}
+                                </h4>
+                                <p class="text-xs text-gray-500 mb-2 truncate">ID: {{ supporteur.numero_supporteur }}</p>
+                                
+                                <div class="flex flex-wrap gap-1.5 mb-2">
+                                    <!-- Statut compte -->
+                                    <span class="inline-flex items-center px-1.5 py-0.5 rounded border text-[10px] font-medium {% if supporteur.statut == 'valid' %}bg-green-50 text-green-700 border-green-200{% elif supporteur.statut == 'pending' %}bg-yellow-50 text-yellow-700 border-yellow-200{% else %}bg-red-50 text-red-700 border-red-200{% endif %}">
+                                        {% if supporteur.statut == 'valid' %}<i class="fas fa-check mr-1"></i> Valide{% elif supporteur.statut == 'pending' %}<i class="fas fa-clock mr-1"></i> Attente{% else %}<i class="fas fa-times mr-1"></i> Bloqué{% endif %}
+                                    </span>
+                                    
+                                    <!-- Statut paiement -->
+                                    <span class="inline-flex items-center px-1.5 py-0.5 rounded border text-[10px] font-medium {% if supporteur.paye %}bg-green-50 text-green-700 border-green-200{% else %}bg-red-50 text-red-700 border-red-200{% endif %}">
+                                        {% if supporteur.paye %}<i class="fas fa-check-circle mr-1"></i> Payé{% else %}<i class="fas fa-exclamation-circle mr-1"></i> Non payé{% endif %}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Actions Inline -->
+                        {% if request.user == supporteur.cree_par %}
+                        <div class="mt-3 flex gap-2 pt-3 border-t border-gray-50 pl-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <a href="{% url 'supporteur_detail' supporteur.id %}" class="flex-1 text-center py-1.5 px-2 bg-gray-50 hover:bg-gray-100 text-gray-600 text-xs font-semibold rounded-lg border border-gray-200 transition-colors" title="Détails">
+                                <i class="far fa-eye"></i>
+                            </a>
+                            <a href="{% url 'modifier_supporteur' supporteur.id %}" class="flex-1 text-center py-1.5 px-2 bg-gray-50 hover:bg-yellow-50 text-yellow-600 text-xs font-semibold rounded-lg border border-gray-200 transition-colors" title="Modifier">
+                                <i class="fas fa-pen"></i>
+                            </a>
+                            <a href="{% url 'telecharger_carte_supporteur_image' supporteur.id %}" class="flex-1 text-center py-1.5 px-2 bg-gray-50 hover:bg-blue-50 text-lupopo-blue text-xs font-semibold rounded-lg border border-gray-200 transition-colors" title="Télécharger carte">
+                                <i class="fas fa-download"></i>
+                            </a>
+                            <form action="{% url 'supprimer_supporteur' supporteur.id %}" method="post" class="inline" onsubmit="return confirm('Supprimer ce supporteur définitivement ?');">
+                                {% csrf_token %}
+                                <button type="submit" class="w-full text-center py-1.5 px-2 bg-gray-50 hover:bg-red-50 text-red-600 text-xs font-semibold rounded-lg border border-gray-200 transition-colors" title="Supprimer">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+                        {% endif %}
+
+                    </div>
+                    {% empty %}
+                    <div class="col-span-full py-8 text-center bg-gray-50 rounded-2xl border border-gray-200 border-dashed">
+                        <i class="fas fa-users-slash text-3xl text-gray-300 mb-3 block"></i>
+                        <p class="text-gray-500 text-sm">Vous n'avez créé aucun supporteur pour le moment.</p>
+                        <a href="{% url 'supporteur_create' %}" class="inline-block mt-3 text-lupopo-blue font-medium text-sm hover:underline">Créer le premier supporteur</a>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        
+    </div>
+</div>
+
+<script>
+    // Animations d'entrée pour les cartes
+    document.addEventListener("DOMContentLoaded", () => {
+        const cartes = document.querySelectorAll('#mes-cartes > div');
+        cartes.forEach((carte, index) => {
+            carte.style.opacity = '0';
+            carte.style.transform = 'translateY(10px)';
+            setTimeout(() => {
+                carte.style.transition = 'all 0.4s ease-out';
+                carte.style.opacity = '1';
+                carte.style.transform = 'translateY(0)';
+            }, 50 * index);
+        });
+    });
+</script>
+
+{% endblock %}

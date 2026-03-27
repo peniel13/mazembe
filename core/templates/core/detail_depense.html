@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Détail de la Dépense - FC Saint Eloi Lupopo{% endblock %}
+
+{% block content %}
+
+<section class="py-12 md:py-20 bg-gray-50 min-h-[85vh] relative z-0">
+    <!-- Decorative background elements -->
+    <div class="absolute top-0 right-0 w-1/3 h-1/3 bg-gradient-to-br from-red-50 to-transparent rounded-bl-full -z-10"></div>
+    <div class="absolute bottom-0 left-0 w-1/4 h-1/4 bg-gradient-to-tr from-blue-50 to-transparent rounded-tr-full -z-10"></div>
+
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <!-- Header / Back button -->
+        <div class="mb-8">
+            <a href="{% url 'liste_depenses' %}" class="inline-flex items-center text-sm font-medium text-gray-500 hover:text-lupopo-blue transition-colors group">
+                <i class="fas fa-arrow-left mr-2 transform group-hover:-translate-x-1 transition-transform"></i> Retour aux dépenses
+            </a>
+        </div>
+
+        <div class="bg-white rounded-3xl shadow-xl shadow-gray-200/50 p-6 md:p-10 border border-gray-100 relative overflow-hidden">
+            <!-- Accent Top Line -->
+            <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-red-500 to-red-600"></div>
+            
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+                <!-- Rubrique Badge -->
+                <span class="inline-flex items-center px-4 py-1.5 rounded-full text-sm font-semibold bg-red-50 text-red-700 border border-red-100 shadow-sm">
+                    <i class="fas fa-tag mr-2 text-red-400"></i> {{ depense.rubrique.nom }}
+                </span>
+                
+                <!-- Date -->
+                <div class="flex items-center text-gray-500 text-sm font-medium bg-gray-50 px-4 py-1.5 rounded-full border border-gray-100">
+                    <i class="far fa-calendar-alt mr-2 text-gray-400"></i> {{ depense.date_depense|date:"d M Y" }}
+                </div>
+            </div>
+
+            <!-- Titre & Montant Area -->
+            <div class="mb-10 text-center md:text-left">
+                <h1 class="text-3xl md:text-4xl font-extrabold text-gray-900 mb-4 tracking-tight leading-tight">
+                    {{ depense.titre }}
+                </h1>
+                
+                <div class="inline-flex items-center px-6 py-3 bg-red-50 rounded-2xl border border-red-100">
+                    <span class="text-gray-500 uppercase tracking-wider text-sm font-medium mr-4">Montant</span>
+                    <p class="text-red-600 text-3xl font-black tracking-tight">
+                        - {{ depense.montant }} <span class="text-xl text-red-400 font-bold ml-1">CDF</span>
+                    </p>
+                </div>
+            </div>
+
+            <hr class="border-gray-100 mb-8">
+
+            <!-- Description -->
+            <div class="mb-10">
+                <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center">
+                    <i class="fas fa-align-left text-lupopo-blue mr-3"></i> Description détaillée
+                </h3>
+                <div class="bg-gray-50 rounded-2xl p-6 border border-gray-100">
+                    <p class="text-gray-700 leading-relaxed whitespace-pre-line">
+                        {{ depense.description }}
+                    </p>
+                </div>
+            </div>
+
+            <!-- Preuve -->
+            {% if depense.preuve %}
+            <div class="mb-10">
+                <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center">
+                    <i class="fas fa-paperclip text-lupopo-yellow mr-3"></i> Document justificatif
+                </h3>
+                <div class="flex items-center justify-between bg-white border border-gray-200 rounded-2xl p-4 shadow-sm hover:border-lupopo-blue transition-colors group">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-xl bg-blue-50 text-lupopo-blue flex items-center justify-center text-xl">
+                            <i class="far fa-file-pdf"></i>
+                        </div>
+                        <div>
+                            <p class="font-semibold text-gray-900 text-sm">Preuve de dépense</p>
+                            <p class="text-xs text-gray-500">Document attaché</p>
+                        </div>
+                    </div>
+                    <a href="{{ depense.preuve.url }}" target="_blank" class="px-5 py-2.5 bg-gray-50 hover:bg-lupopo-blue hover:text-white text-gray-700 font-medium text-sm rounded-xl border border-gray-200 transition-all transform hover:-translate-y-0.5 shadow-sm group-hover:shadow-md flex items-center">
+                        <i class="fas fa-external-link-alt mr-2"></i> Consulter
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+
+            <hr class="border-gray-100 my-8">
+
+            <!-- Footprint Infos -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 bg-gray-50 rounded-2xl p-6 border border-gray-100">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center text-gray-400 mr-3 shadow-sm">
+                        <i class="fas fa-user-shield"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-500 uppercase font-medium tracking-wider mb-0.5">Enregistré par</p>
+                        <p class="font-bold text-gray-900 text-sm">{{ depense.cree_par }}</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-center">
+                    <div class="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center text-gray-400 mr-3 shadow-sm">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-500 uppercase font-medium tracking-wider mb-0.5">Date de saisie système</p>
+                        <p class="font-bold text-gray-900 text-sm">{{ depense.date_creation|date:"d M Y à H:i" }}</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+{% endblock %}

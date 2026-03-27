@@ -1,0 +1,312 @@
+{% extends "base.html" %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block title %}Paiement des Contributions - FC Saint Eloi Lupopo{% endblock %}
+
+{% block content %}
+<div class="min-h-[85vh] bg-gray-50 py-12 relative z-0">
+    <div class="absolute top-0 right-0 w-1/3 h-1/3 bg-gradient-to-br from-indigo-50 to-transparent rounded-bl-full -z-10"></div>
+    <div class="absolute bottom-0 left-0 w-1/4 h-1/4 bg-yellow-50/50 rounded-tr-full -z-10"></div>
+
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <div class="mb-10 text-center">
+            <h1 class="text-3xl md:text-4xl font-extrabold text-gray-900 mb-3 tracking-tight">
+                <i class="fas fa-hand-holding-usd text-yellow-500 mr-2"></i> Paiement des contributions
+            </h1>
+            <p class="text-gray-600 text-lg">
+                Complétez le paiement pour confirmer votre soutien au club.
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+            
+            <div class="bg-white rounded-3xl shadow-lg border border-gray-100 overflow-hidden flex flex-col h-full transform transition-all hover:shadow-xl hover:-translate-y-1">
+                <div class="bg-black p-6 text-white border-b-4 border-gray-100">
+                    <h2 class="text-xl font-bold flex items-center">
+                        <i class="fas fa-info-circle mr-3 text-white text-2xl"></i> 
+                        <span class="tracking-tight">Instructions de paiement</span>
+                    </h2> 
+                </div>
+                
+                <div class="p-6 md:p-8 flex-1">
+                    <ul class="space-y-4 mb-8">
+                        <li class="flex items-start">
+                            <span class="flex-shrink-0 w-8 h-8 rounded-full bg-indigo-50 text-blue-900 flex items-center justify-center font-bold text-sm mr-4 mt-0.5 border border-indigo-100">1</span>
+                            <p class="text-gray-700 font-medium leading-relaxed">Sélectionnez l'un de nos numéros de Mobile Money officiels ci-dessous correspondant à votre réseau.</p>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="flex-shrink-0 w-8 h-8 rounded-full bg-indigo-50 text-blue-900 flex items-center justify-center font-bold text-sm mr-4 mt-0.5 border border-indigo-100">2</span>
+                            <p class="text-gray-700 font-medium leading-relaxed">Effectuez le transfert du montant exact affiché (<strong class="text-gray-900 border-b border-gray-300">{{ montant_total }} CDF</strong>) via votre téléphone.</p>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="flex-shrink-0 w-8 h-8 rounded-full bg-indigo-50 text-blue-900 flex items-center justify-center font-bold text-sm mr-4 mt-0.5 border border-indigo-100">3</span>
+                            <p class="text-gray-700 font-medium leading-relaxed">Retrouvez la référence de transaction dans le SMS de confirmation, puis complétez le formulaire.</p>
+                        </li>
+                    </ul>
+
+                    <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4">Transferts Officiels (Mobile Money)</h3>
+                    
+                    <div class="space-y-3">
+                        <div class="flex items-center p-3 border border-gray-200 rounded-2xl hover:bg-gray-50 transition-colors">
+                            <img src="{% static 'img/airtel.png' %}" alt="Airtel Money" class="w-12 h-12 rounded-xl object-contain bg-white mr-4 shadow-sm border border-gray-100">
+                            <div>
+                                <p class="text-xs font-bold text-gray-500 uppercase">Airtel Money</p>
+                                <p class="text-lg font-black tracking-wide text-gray-900">+243 97 24 89 318</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center p-3 border border-gray-200 rounded-2xl hover:bg-gray-50 transition-colors">
+                            <img src="{% static 'img/M-Pesa.jpg' %}" alt="M-Pesa" class="w-12 h-12 rounded-xl object-cover bg-white mr-4 shadow-sm border border-gray-100">
+                            <div>
+                                <p class="text-xs font-bold text-gray-500 uppercase">M-Pesa</p>
+                                <p class="text-lg font-black tracking-wide text-gray-900">+243 98 76 54 321</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 flex items-start p-4 bg-blue-50 rounded-xl border border-blue-100 text-xs text-blue-800 font-medium">
+                        <i class="fas fa-shield-alt text-blue-500 mt-0.5 mr-2"></i>
+                        Veuillez conserver le SMS de transfert. En cas de litige, notre service client vous demandera cette preuve de paiement.
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex flex-col space-y-8">
+                <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div class="bg-gray-900 p-4 text-white flex justify-between items-center">
+                        <span class="text-sm font-medium opacity-80 uppercase tracking-widest">Total à régler</span>
+                        <span class="text-2xl font-black text-yellow-400">{{ montant_total }} CDF</span>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-3xl shadow-lg border border-gray-100 p-8 flex-1">
+                    <h3 class="text-xl font-bold text-gray-900 mb-6 flex items-center">
+                        <i class="fas fa-mobile-alt text-blue-800 mr-3"></i> Confirmation de transaction
+                    </h3>
+                    
+                    <form method="post" class="space-y-6">
+                        {% csrf_token %}
+
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-2">Montant final déposé</label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                    <span class="text-gray-400 font-bold">CDF</span>
+                                </div>
+                                {% render_field form.montant_total class="w-full pl-14 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-800 focus:ring-4 focus:ring-blue-800/10 transition-all font-semibold bg-gray-50" %}
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-2">Téléphone utilisé</label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                    <i class="fas fa-phone-alt text-gray-400"></i>
+                                </div>
+                                {% render_field form.phone_number class="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-800 focus:ring-4 focus:ring-blue-800/10 transition-all font-semibold" placeholder="097..." %}
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-2">ID de Transaction</label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                    <i class="fas fa-barcode text-gray-400"></i>
+                                </div>
+                                {% render_field form.id_transaction class="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-800 focus:ring-4 focus:ring-blue-800/10 transition-all font-bold uppercase tracking-wider" %}
+                            </div>
+                        </div>
+
+                        <button type="submit" class="w-full flex items-center justify-center px-6 py-4 border border-transparent text-base font-black rounded-xl text-white bg-black hover:bg-gray-900 shadow-lg shadow-gray-300/30 transform hover:-translate-y-0.5 transition-all">
+                            <i class="fas fa-check-circle mr-2 text-white"></i> 
+                            <span class="tracking-tight">Valider le paiement</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+{% comment %} {% extends "base.html" %}
+
+{% block title %}Paiement des Contributions - FC Saint Eloi Lupopo{% endblock %}
+
+{% block content %}
+<div class="min-h-[85vh] bg-gray-50 py-12 relative z-0">
+    <!-- Background Design -->
+    <div class="absolute top-0 right-0 w-1/3 h-1/3 bg-gradient-to-br from-indigo-50 to-transparent rounded-bl-full -z-10"></div>
+    <div class="absolute bottom-0 left-0 w-1/4 h-1/4 bg-yellow-50/50 rounded-tr-full -z-10"></div>
+
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <!-- Header -->
+        <div class="mb-10 text-center">
+            <h1 class="text-3xl md:text-4xl font-extrabold text-gray-900 mb-3 tracking-tight">
+                <i class="fas fa-hand-holding-usd text-lupopo-yellow mr-2"></i> Paiement des contributions
+            </h1>
+            <p class="text-gray-600 text-lg">
+                Complétez le paiement pour confirmer votre soutien au club.
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-5 gap-8">
+            
+            <!-- Détails de la Contribution (Colonne de Gauche) -->
+            <div class="md:col-span-2">
+                <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden sticky top-24">
+                    <div class="bg-lupopo-dark p-6 text-white text-center">
+                        <i class="fas fa-receipt text-3xl text-white/50 mb-3"></i>
+                        <h3 class="font-bold text-lg mb-1">Total à régler</h3>
+                        <p class="text-3xl font-black text-lupopo-yellow tracking-tight">{{ montant_total }} <span class="text-sm font-medium text-white/70">CDF</span></p>
+                    </div>
+                    
+                    <div class="p-6">
+                        <h4 class="font-bold text-gray-900 text-sm uppercase tracking-wider mb-4 border-b border-gray-100 pb-2">Contributions sélectionnées</h4>
+                        
+                        <ul class="space-y-3">
+                            {% for c in contributions %}
+                            <li class="flex justify-between items-center text-sm py-2">
+                                <span class="text-gray-600 font-medium flex items-center">
+                                    <i class="far fa-calendar-alt text-gray-400 mr-2"></i> {{ c.date }}
+                                </span>
+                                <span class="font-bold text-gray-900 bg-gray-50 px-2 py-1 rounded border border-gray-100">{{ c.montant }} CDF</span>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                        
+                        <div class="mt-6 p-4 bg-yellow-50 rounded-xl border border-yellow-100 flex items-start">
+                            <i class="fas fa-shield-alt text-yellow-600 mt-0.5 mr-3"></i>
+                            <p class="text-xs text-yellow-800 font-medium leading-relaxed">
+                                Votre transaction est sécurisée. Les fonds sont directement attribués aux caisses officielles du FC Lupopo.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Formulaire de Paiement (Colonne de Droite) -->
+            <div class="md:col-span-3">
+                <div class="bg-white rounded-3xl shadow-lg border border-gray-100 p-8">
+                    
+                    <h3 class="text-xl font-bold text-gray-900 mb-6 flex items-center">
+                        <i class="fas fa-mobile-alt text-lupopo-blue mr-3"></i> Confirmation de transaction
+                    </h3>
+                    
+                    <form method="post" class="space-y-6">
+                        {% csrf_token %}
+
+                        <!-- Montant Field -->
+                        <div class="relative">
+                            <label class="block text-sm font-bold text-gray-700 mb-2">Montant final déposé</label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                    <span class="text-gray-400 font-bold">CDF</span>
+                                </div>
+                                <!-- Adding class to Django Form Widget using widget tweaks or targeting input -->
+                                {{ form.montant_total }}
+                                <style>
+                                    /* Inline style to target Django's auto-rendered input to match design if we don't use django-widget-tweaks */
+                                    input[name="montant_total"] {
+                                        width: 100%;
+                                        padding-left: 3.5rem;
+                                        padding-right: 1rem;
+                                        padding-top: 0.75rem;
+                                        padding-bottom: 0.75rem;
+                                        border: 2px solid #e5e7eb;
+                                        border-radius: 0.75rem;
+                                        transition: all 0.2s;
+                                        font-weight: 600;
+                                        color: #111827;
+                                        background-color: #f9fafb;
+                                    }
+                                    input[name="montant_total"]:focus {
+                                        border-color: #0033a0;
+                                        outline: none;
+                                        background-color: #ffffff;
+                                        box-shadow: 0 0 0 4px rgba(0, 51, 160, 0.1);
+                                    }
+                                </style>
+                            </div>
+                        </div>
+
+                        <!-- Phone Field -->
+                        <div class="relative">
+                            <label class="block text-sm font-bold text-gray-700 mb-2">Téléphone utilisé (Mobile Money)</label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                    <i class="fas fa-phone-alt text-gray-400"></i>
+                                </div>
+                                {{ form.phone_number }}
+                                <style>
+                                    input[name="phone_number"] {
+                                        width: 100%;
+                                        padding-left: 2.5rem;
+                                        padding-right: 1rem;
+                                        padding-top: 0.75rem;
+                                        padding-bottom: 0.75rem;
+                                        border: 2px solid #e5e7eb;
+                                        border-radius: 0.75rem;
+                                        transition: all 0.2s;
+                                        font-weight: 600;
+                                    }
+                                    input[name="phone_number"]:focus {
+                                        border-color: #0033a0;
+                                        outline: none;
+                                        box-shadow: 0 0 0 4px rgba(0, 51, 160, 0.1);
+                                    }
+                                </style>
+                            </div>
+                            <p class="text-xs text-gray-500 mt-2">Le numéro Airtel, M-Pesa ou Orange Money ayant servi au transfert.</p>
+                        </div>
+
+                        <!-- Transaction ID Field -->
+                        <div class="relative">
+                            <label class="block text-sm font-bold text-gray-700 mb-2">ID de Transaction (Référence)</label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                    <i class="fas fa-barcode text-gray-400"></i>
+                                </div>
+                                {{ form.id_transaction }}
+                                <style>
+                                    input[name="id_transaction"] {
+                                        width: 100%;
+                                        padding-left: 2.5rem;
+                                        padding-right: 1rem;
+                                        padding-top: 0.75rem;
+                                        padding-bottom: 0.75rem;
+                                        border: 2px solid #e5e7eb;
+                                        border-radius: 0.75rem;
+                                        transition: all 0.2s;
+                                        font-weight: 700;
+                                        text-transform: uppercase;
+                                        letter-spacing: 1px;
+                                    }
+                                    input[name="id_transaction"]:focus {
+                                        border-color: #0033a0;
+                                        outline: none;
+                                        box-shadow: 0 0 0 4px rgba(0, 51, 160, 0.1);
+                                    }
+                                </style>
+                            </div>
+                            <p class="text-xs text-gray-500 mt-2">Le code de référence reçu dans le SMS de confirmation de l'opérateur.</p>
+                        </div>
+
+                        <div class="pt-4">
+                            <button type="submit" class="w-full flex items-center justify-center px-6 py-4 border border-transparent text-base font-black rounded-xl text-white bg-lupopo-blue hover:bg-blue-800 shadow-lg shadow-blue-500/30 transform hover:-translate-y-0.5 transition-all">
+                                <i class="fas fa-check-circle mr-2"></i> Soumettre la confirmation de paiement
+                            </button>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %} {% endcomment %}

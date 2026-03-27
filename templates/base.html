@@ -1,0 +1,377 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SUPPORTEUR/CLUB</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+          theme: {
+            extend: {
+              colors: {
+                lupopo: {
+                  blue: '#000000',      /* Remplacé par noir */
+                  yellow: '#E30613',   /* On garde le jaune pour le contraste */
+                  dark: '#1A1A1A',      /* Remplacé par un noir anthracite */
+                }
+              },
+              fontFamily: {
+                sans: ['Inter', 'sans-serif'],
+              }
+            }
+          }
+        }
+    </script>
+    <style>
+        /* Custom scrollbar avec le nouveau thème noir */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #000000; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #1A1A1A; }
+    </style>
+    {% comment %} <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              lupopo: {
+                blue: '#0033A0',
+                yellow: '#FFD100',
+                dark: '#001A5E',
+              }
+            },
+            fontFamily: {
+              sans: ['Inter', 'sans-serif'],
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+        /* Custom scrollbar for a nicer look */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #0033A0; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #001A5E; }
+    </style> {% endcomment %}
+</head>
+<body class="bg-gray-50 font-sans antialiased text-gray-800 flex flex-col min-h-screen">
+
+    <!-- Navbar -->
+    <nav class="sticky top-0 z-50 w-full backdrop-blur-md bg-white/90 border-b border-gray-200 shadow-sm transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <!-- Logo -->
+                <div class="flex-shrink-0 flex items-center">
+                    <a href="{% url 'index' %}" class="flex items-center space-x-3 group">
+                        <div class="w-12 h-12 bg-white rounded-full shadow-md flex items-center justify-center border-2 border-lupopo-blue group-hover:scale-105 transition-transform duration-300">
+                            <img src="{% static 'img/lupopo.png' %}" alt="Logo" class="h-8 object-contain">
+                        </div>
+                        <span class="font-bold text-xl md:text-2xl text-lupopo-dark tracking-tight hidden sm:block">TP MAZEMBE</span>
+                    </a>
+                </div>
+                
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex flex-1 items-center justify-center space-x-1 lg:space-x-4">
+                    <a href="{% url 'index' %}" class="px-4 py-2 rounded-lg text-sm font-semibold text-gray-700 hover:bg-lupopo-blue/10 hover:text-lupopo-blue transition-colors duration-200">Accueil</a>
+                    <a href="{% url 'apropos' %}" class="px-4 py-2 rounded-lg text-sm font-semibold text-gray-700 hover:bg-lupopo-blue/10 hover:text-lupopo-blue transition-colors duration-200">À propos</a>
+                   
+                    
+                    {% if request.user.is_authenticated and request.user.is_acces_staf %}
+                    <a href="{% url 'supporteur_create' %}" class="px-4 py-2 rounded-lg text-sm font-semibold text-gray-700 hover:bg-lupopo-blue/10 hover:text-lupopo-blue transition-colors duration-200">Ajout Membre</a>
+                    <a href="{% url 'supporteurs_list' %}" class="px-4 py-2 rounded-lg text-sm font-semibold text-gray-700 hover:bg-lupopo-blue/10 hover:text-lupopo-blue transition-colors duration-200">Cartes</a>
+                    
+                    <!-- Admin Dropdown -->
+                    <div class="relative group">
+                        <button class="flex items-center px-4 py-2 rounded-lg text-sm font-semibold text-gray-700 hover:bg-lupopo-blue/10 hover:text-lupopo-blue transition-colors duration-200 focus:outline-none">
+                            <span>Admin</span>
+                            <svg class="ml-1 w-4 h-4 transition-transform duration-200 group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+                        <div class="absolute right-0 w-48 mt-2 origin-top-right bg-white border border-gray-100 divide-y divide-gray-100 rounded-xl shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 flex flex-col overflow-hidden">
+                            <a href="{% url 'liste_createurs' %}" class="px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-lupopo-blue transition-colors">Enregistreurs</a>
+                            <a href="{% url 'journal_list' %}" class="px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-lupopo-blue transition-colors">Journal</a>
+                            <a href="{% url 'supporteurs_dashboard_stats' %}" class="px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 hover:text-lupopo-blue transition-colors">Statistiques</a>
+                        </div>
+                    </div>
+                    {% else %}
+        <!-- 🔹 PUBLIC (connecté normal ou non connecté) -->
+        <a href="{% url 'creer_supporteur_public' %}" class="px-4 py-2 rounded-lg text-sm font-semibold text-gray-700 hover:bg-lupopo-blue/10 hover:text-lupopo-blue transition-colors duration-200">Créer ma carte</a>
+    {% endif %}
+                </div>
+
+                <!-- Right Side Actions (Auth profile) -->
+                <div class="hidden md:flex items-center space-x-4">
+                    {% if request.user.is_authenticated %}
+                        <a href="{% url 'profile' user.id %}" class="flex items-center space-x-2 px-4 py-2 rounded-full border border-gray-200 hover:border-lupopo-blue hover:shadow-md transition-all duration-200">
+                            {% if request.user.profile_pic %}
+                                <img src="{{ request.user.profile_pic.url }}" alt="Avatar" class="w-8 h-8 rounded-full object-cover">
+                            {% else %}
+                                <div class="w-8 h-8 rounded-full bg-lupopo-blue/10 text-lupopo-blue flex items-center justify-center font-bold">
+                                    {{ request.user.username|slice:":1"|upper }}
+                                </div>
+                            {% endif %}
+                            <span class="font-medium text-sm text-gray-700">{{ request.user.username }}</span>
+                        </a>
+                        <a href="{% url 'signout' %}" class="px-4 py-2 text-sm font-semibold text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200">
+                            <i class="fas fa-sign-out-alt mr-1"></i> Déconnexion
+                        </a>
+                    {% else %}
+                        <a href="{% url 'signin' %}" class="px-5 py-2 rounded-lg text-sm font-semibold text-gray-700 hover:bg-gray-100 transition-colors duration-200">
+                            Connexion
+                        </a>
+                        <a href="{% url 'signup' %}" class="px-5 py-2.5 rounded-lg text-sm font-semibold text-lupopo-dark bg-lupopo-yellow hover:bg-yellow-400 shadow-md hover:shadow-lg transition-all duration-200 transform hover:-translate-y-0.5">
+                            S'inscrire
+                        </a>
+                    {% endif %}
+                </div>
+
+                <!-- Mobile menu button -->
+                <div class="flex items-center md:hidden">
+                    <button id="menu-toggle" class="inline-flex items-center justify-center p-2 rounded-md text-gray-700 hover:text-lupopo-blue hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-lupopo-blue transition-colors">
+                        <span class="sr-only">Ouvrir le menu</span>
+                        <svg class="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Menu Panel -->
+        <div id="mobile-menu" class="md:hidden hidden bg-white border-t border-gray-100 shadow-lg absolute w-full left-0 origin-top animate-fade-in-down">
+            <div class="px-4 pt-2 pb-6 space-y-1 sm:px-3">
+                <a href="{% url 'index' %}" class="block px-3 py-3 rounded-md text-base font-medium text-gray-800 hover:bg-gray-50 hover:text-lupopo-blue">Accueil</a>
+                <a href="{% url 'apropos' %}" class="block px-3 py-3 rounded-md text-base font-medium text-gray-800 hover:bg-gray-50 hover:text-lupopo-blue">À propos</a>
+                
+                {% if request.user.is_authenticated and request.user.is_acces_staf %}
+                    <div class="border-t border-gray-200 my-2 pt-2">
+                        <p class="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Administration</p>
+                        <a href="{% url 'supporteur_create' %}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-800 hover:bg-gray-50 hover:text-lupopo-blue">Ajout membre</a>
+                        <a href="{% url 'supporteurs_list' %}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-800 hover:bg-gray-50 hover:text-lupopo-blue">Liste cartes</a>
+                        <a href="{% url 'liste_createurs' %}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-800 hover:bg-gray-50 hover:text-lupopo-blue">Enregistreurs</a>
+                        <a href="{% url 'journal_list' %}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-800 hover:bg-gray-50 hover:text-lupopo-blue">Journal list</a>
+                        <a href="{% url 'supporteurs_dashboard_stats' %}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-800 hover:bg-gray-50 hover:text-lupopo-blue">Statistiques</a>
+                    </div>
+                    {% else %}
+                    <!-- 🔹 PUBLIC (connecté normal ou non connecté) -->
+                    <a href="{% url 'creer_supporteur_public' %}" class="block px-3 py-3 rounded-md text-base font-medium text-gray-800 hover:bg-gray-50 hover:text-lupopo-blue">Créer ma carte</a>
+                    
+                {% endif %}
+                
+                
+                <div class="border-t border-gray-200 mt-4 pt-4">
+                    {% if request.user.is_authenticated %}
+                        <div class="flex items-center px-4 py-3 bg-gray-50 rounded-lg mb-3">
+                            <div class="flex-shrink-0">
+                                <a href="{% url 'profile' request.user.id %}">
+                                    {% if request.user.profile_pic %}
+                                        <img src="{{ request.user.profile_pic.url }}" 
+                                             alt="Profil" 
+                                             class="h-10 w-10 rounded-full object-cover cursor-pointer hover:opacity-80 transition">
+                                    {% else %}
+                                        <div class="h-10 w-10 rounded-full bg-lupopo-blue text-white flex items-center justify-center font-bold text-lg cursor-pointer hover:opacity-80 transition">
+                                            {{ request.user.username|slice:":1"|upper }}
+                                        </div>
+                                    {% endif %}
+                                </a>
+                                {% comment %} {% if request.user.profile_pic %}
+                                    <img src="{{ request.user.profile_pic.url }}" alt="" class="h-10 w-10 rounded-full object-cover">
+                                {% else %}
+                                    <div class="h-10 w-10 rounded-full bg-lupopo-blue text-white flex items-center justify-center font-bold text-lg">
+                                        {{ request.user.username|slice:":1"|upper }}
+                                    </div>
+                                {% endif %} {% endcomment %}
+                            </div>
+                            <div class="ml-3">
+                                <div class="text-base font-medium text-gray-800"><a href="{% url 'profile' user.id %}">{{ request.user.username }}</a></div>
+                                <div class="text-sm font-medium text-gray-500">{{ request.user.email }}</div>
+                            </div>
+                        </div>
+                        <a href="{% url 'signout' %}" class="block px-3 py-3 rounded-md text-base font-medium text-red-600 hover:bg-red-50">Déconnexion</a>
+                    {% else %}
+                        <a href="{% url 'signin' %}" class="block w-full text-center px-4 py-3 border border-gray-300 rounded-md text-base font-medium text-gray-700 bg-white hover:bg-gray-50 mb-2">Connexion</a>
+                        <a href="{% url 'signup' %}" class="block w-full text-center px-4 py-3 border border-transparent rounded-md text-base font-bold text-lupopo-dark bg-lupopo-yellow hover:bg-yellow-400">S'inscrire</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    
+    {% for message in messages %}
+    <div class="flex justify-center">
+        <div class="max-w-4xl w-full mt-4 px-4 py-2 text-center rounded-lg 
+            {% if message.tags == 'success' %}
+                bg-green-100 text-green-800 border border-green-500
+            {% elif message.tags == 'error' %}
+                bg-red-100 text-red-800 border border-red-500
+            {% else %}
+                bg-yellow-100 text-yellow-800 border border-yellow-500
+            {% endif %}
+        " role="alert">
+            {{ message }}
+        </div>
+    </div>
+{% endfor %}
+
+    
+      {% block content %}
+      <!-- Le contenu spécifique à chaque page sera inséré ici -->
+      {% endblock content %}
+ 
+    <!-- Footer -->
+    <footer class="bg-lupopo-dark text-gray-300 py-12 border-t-4 border-lupopo-yellow mt-auto">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-8 mb-12">
+                
+                <!-- Brand Info (Col span 4) -->
+                <div class="md:col-span-4">
+                    <div class="flex items-center space-x-3 mb-6">
+                        <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center p-1">
+                            <img src="{% static 'img/lupopo.png' %}" alt="Logo" class="max-h-full object-contain">
+                        </div>
+                        <span class="text-2xl font-bold text-white tracking-wide">TP MAZEMBE</span>
+                    </div>
+                    <p class="text-sm leading-relaxed mb-6 text-gray-400">
+                        Ayez votre carte de supporteur auprès de vos agents admin. Cela prouve que vous êtes bel et bien un  100% MAZEMBE. <span class="text-lupopo-yellow font-medium">Badiangwena!</span>
+                    </p>
+                    
+                    <!-- Social Links (Optional / Placeholders for real links) -->
+                    <div class="flex space-x-4">
+                        <a href="#" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-lupopo-yellow hover:text-lupopo-dark transition-all duration-300">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-lupopo-yellow hover:text-lupopo-dark transition-all duration-300">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-lupopo-yellow hover:text-lupopo-dark transition-all duration-300">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Quick Links (Col span 3) -->
+                <div class="md:col-span-3 md:col-start-6">
+                    <h3 class="text-lg font-bold text-white mb-6 uppercase tracking-wider relative inline-block">
+                        Liens Utiles
+                        <span class="absolute -bottom-2 left-0 w-1/2 h-1 bg-lupopo-yellow rounded-full"></span>
+                    </h3>
+                    <ul class="space-y-3 text-sm">
+                        <li><a href="{% url 'index' %}" class="hover:text-lupopo-yellow transition-colors duration-200 flex items-center"><i class="fas fa-chevron-right text-xs mr-2 text-lupopo-yellow"></i> Accueil</a></li>
+                        <li><a href="{% url 'apropos' %}" class="hover:text-lupopo-yellow transition-colors duration-200 flex items-center"><i class="fas fa-chevron-right text-xs mr-2 text-lupopo-yellow"></i> À propos</a></li>
+                        {% if not request.user.is_authenticated %}
+                            <li><a href="{% url 'signin' %}" class="hover:text-lupopo-yellow transition-colors duration-200 flex items-center"><i class="fas fa-chevron-right text-xs mr-2 text-lupopo-yellow"></i> Connexion</a></li>
+                            <li><a href="{% url 'signup' %}" class="hover:text-lupopo-yellow transition-colors duration-200 flex items-center"><i class="fas fa-chevron-right text-xs mr-2 text-lupopo-yellow"></i> Inscription</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+
+                <!-- Contact & Newsletter (Col span 4) -->
+                <div class="md:col-span-4">
+                    <h3 class="text-lg font-bold text-white mb-6 uppercase tracking-wider relative inline-block">
+                        Nous Contacter
+                        <span class="absolute -bottom-2 left-0 w-1/2 h-1 bg-lupopo-yellow rounded-full"></span>
+                    </h3>
+                    
+                    <ul class="space-y-4 text-sm mb-6">
+                        <li class="flex items-start">
+                            <div class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center mr-3 flex-shrink-0 text-lupopo-yellow">
+                                <i class="fas fa-phone-alt"></i>
+                            </div>
+                            <div class="pt-1">
+                                <span class="block font-semibold text-white">Téléphone</span>
+                                <a href="tel:+243972489318" class="hover:text-lupopo-yellow transition-colors">+243 97 24 89 318</a>
+                            </div>
+                        </li>
+                        <li class="flex items-start">
+                            <div class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center mr-3 flex-shrink-0 text-lupopo-yellow">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                            <div class="pt-1">
+                                <span class="block font-semibold text-white">Email</span>
+                                <a href="mailto:sainteloi@gmail.com" class="hover:text-lupopo-yellow transition-colors">sainteloi@gmail.com</a>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <!-- Newsletter Mini Form -->
+                    <form action="https://api.web3forms.com/submit" method="POST" class="relative">
+                        <input type="hidden" name="access_key" value="98566e49-8c9c-41d3-8472-2549b3cb0e2d">
+                        <input type="email" name="email" placeholder="Abonnez-vous à la newsletter..." required 
+                               class="w-full bg-white/5 border border-white/10 rounded-lg py-3 pl-4 pr-12 text-sm text-white focus:outline-none focus:border-lupopo-yellow focus:ring-1 focus:ring-lupopo-yellow transition-all">
+                        <button type="submit" class="absolute right-2 top-1/2 transform -translate-y-1/2 w-8 h-8 bg-lupopo-yellow text-lupopo-dark rounded-md flex items-center justify-center hover:bg-yellow-400 transition-colors">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </form>
+                </div>
+                
+            </div>
+    
+            <!-- Bottom footer -->
+            <div class="border-t border-white/10 pt-8 mt-8 flex flex-col md:flex-row justify-between items-center text-sm text-gray-500">
+                <p>&copy; {% now "Y" %} <span class="text-white font-semibold">TP MAZEMBE</span>. Tous droits réservés.</p>
+                <div class="mt-4 md:mt-0 flex space-x-4">
+                    <a href="#" class="hover:text-white transition-colors">Politique de confidentialité</a>
+                    <a href="#" class="hover:text-white transition-colors">Conditions d'utilisation</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <!-- JavaScript pour activer le menu déroulant -->
+
+    <script>
+            // Script pour le dropdown Immo
+                // Script pour le dropdown Immo (desktop)
+                document.addEventListener('DOMContentLoaded', function() {
+                    const immoDropdownButton = document.getElementById('immoDropdownButton');
+                    const immoDropdown = document.getElementById('immoDropdown');
+            
+                    immoDropdownButton.addEventListener('click', function() {
+                        immoDropdown.classList.toggle('hidden');
+                    });
+            
+                    // Fermer le dropdown si on clique à l'extérieur
+                    window.addEventListener('click', function(event) {
+                        if (!immoDropdownButton.contains(event.target) && !immoDropdown.contains(event.target)) {
+                            immoDropdown.classList.add('hidden');
+                        }
+                    });
+            
+                    // Script pour le dropdown Immo (mobile)
+                    const immoMobileDropdownButton = document.getElementById('immoMobileDropdownButton');
+                    const immoMobileDropdown = document.getElementById('immoMobileDropdown');
+            
+                    immoMobileDropdownButton.addEventListener('click', function() {
+                        immoMobileDropdown.classList.toggle('hidden');
+                    });
+            
+                    // Fermer le dropdown mobile si on clique à l'extérieur
+                    window.addEventListener('click', function(event) {
+                        if (!immoMobileDropdownButton.contains(event.target) && !immoMobileDropdown.contains(event.target)) {
+                            immoMobileDropdown.classList.add('hidden');
+                        }
+                    });
+                });
+          
+        // Menu toggle for mobile
+        const menuToggle = document.getElementById('menu-toggle');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        menuToggle.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        
+    </script>
+   
+    
+    
+    <script src="{% static 'js/script.js' %}"></script>
+</body>
+</html>

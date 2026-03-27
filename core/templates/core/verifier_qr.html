@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Résultat de Vérification - FC Saint Eloi Lupopo{% endblock %}
+
+{% block content %}
+<div class="min-h-[85vh] flex items-center justify-center bg-gray-50 py-12 px-4 relative z-0">
+  <!-- Abstract Design -->
+  <div class="absolute inset-0 overflow-hidden pointer-events-none z-[-1]">
+      <div class="absolute top-0 right-0 w-1/3 h-1/3 bg-blue-50/50 rounded-bl-full"></div>
+      <div class="absolute bottom-0 left-0 w-1/4 h-1/4 bg-yellow-50/50 rounded-tr-full"></div>
+  </div>
+
+  <div class="w-full max-w-md">
+    
+    <div class="bg-white rounded-3xl shadow-xl shadow-gray-200/50 border border-gray-100 p-8 text-center relative overflow-hidden">
+      
+      <!-- Top Color Bar depending on status -->
+      {% if statut == "valide" %}
+        <div class="absolute top-0 inset-x-0 h-2 bg-green-500"></div>
+      {% elif statut == "non_valide" %}
+        <div class="absolute top-0 inset-x-0 h-2 bg-red-500"></div>
+      {% else %}
+        <div class="absolute top-0 inset-x-0 h-2 bg-gray-300"></div>
+      {% endif %}
+
+      <h2 class="text-sm font-bold text-gray-500 uppercase tracking-widest mb-6 border-b border-gray-100 pb-4">
+        Contrôle d'accès
+      </h2>
+
+      {% if statut == "valide" %}
+        
+        <div class="w-24 h-24 mx-auto bg-green-50 text-green-500 rounded-full flex items-center justify-center text-5xl mb-6 shadow-inner ring-8 ring-green-50/50 relative">
+          <i class="fas fa-check-circle bg-white rounded-full"></i>
+          <!-- Sparkles -->
+          <div class="absolute -top-1 -right-1 text-green-400 text-lg"><i class="fas fa-sparkles"></i></div>
+        </div>
+        
+        <h3 class="text-2xl font-extrabold text-gray-900 mb-2">Accès Autorisé</h3>
+        <p class="text-green-600 font-bold mb-6 text-sm bg-green-50 inline-block px-3 py-1 rounded-full border border-green-100">Statut: Actif</p>
+
+        <div class="bg-gray-50 rounded-2xl p-6 border border-gray-200 relative">
+            {% if supporteur.photo %}
+              <div class="absolute -top-10 left-1/2 transform -translate-x-1/2">
+                <img src="{{ supporteur.photo.url }}" alt="Photo {{ supporteur.prenom }}" class="w-20 h-20 object-cover rounded-xl shadow-lg border-4 border-white">
+              </div>
+              <div class="h-10"></div> <!-- Spacer for absolute image -->
+            {% endif %}
+            
+            <p class="font-black text-xl text-lupopo-blue uppercase tracking-tight">{{ supporteur.prenom }} {{ supporteur.nom }}</p>
+            <div class="mt-2 inline-flex items-center px-2.5 py-1 bg-white border border-gray-200 rounded text-sm font-mono font-bold text-gray-600">
+                <i class="fas fa-id-card mr-2 text-gray-400"></i> N° {{ supporteur.numero_supporteur }}
+            </div>
+        </div>
+
+      {% elif statut == "non_valide" %}
+        
+        <div class="w-24 h-24 mx-auto bg-red-50 text-red-500 rounded-full flex items-center justify-center text-5xl mb-6 shadow-inner ring-8 ring-red-50/50 relative">
+          <i class="fas fa-times-circle bg-white rounded-full"></i>
+        </div>
+        
+        <h3 class="text-2xl font-extrabold text-gray-900 mb-2">Accès Refusé</h3>
+        <p class="text-red-500 font-bold mb-6 text-sm bg-red-50 inline-block px-3 py-1 rounded-full border border-red-100">Statut: Inactif ou Suspendu</p>
+
+        <div class="bg-gray-50 rounded-2xl p-6 border border-gray-200">
+            <p class="font-bold text-gray-800 text-lg uppercase">{{ supporteur.prenom }} {{ supporteur.nom }}</p>
+            <p class="text-sm text-gray-500 mt-2">Paiement requis ou profil incomplet.</p>
+        </div>
+
+      {% else %}
+        
+        <div class="w-24 h-24 mx-auto bg-gray-100 text-gray-400 rounded-full flex items-center justify-center text-5xl mb-6 shadow-inner ring-8 ring-gray-50 relative">
+          <i class="fas fa-search bg-white rounded-full"></i>
+        </div>
+        
+        <h3 class="text-2xl font-extrabold text-gray-900 mb-2">Carte Inconnue</h3>
+        <p class="text-gray-500 font-medium mb-6 text-sm">Aucun profil ne correspond à ce code.</p>
+
+      {% endif %}
+
+      <!-- Manual Input Form -->
+      <div class="mt-8 pt-6 border-t border-gray-100">
+        <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">Vérification manuelle</p>
+        <form method="get" class="flex flex-col gap-3">
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <i class="fas fa-keyboard text-gray-400"></i>
+            </div>
+            <input type="text" name="numero" placeholder="Entrez le n° de carte (ex: 1234)" required class="w-full pl-11 pr-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-xl text-gray-900 font-bold tracking-wide outline-none focus:bg-white focus:border-lupopo-blue focus:ring-4 focus:ring-blue-50 transition-all text-center">
+          </div>
+          <button type="submit" class="w-full bg-lupopo-blue hover:bg-blue-800 text-white font-bold py-3 rounded-xl shadow-lg shadow-blue-500/30 transform hover:-translate-y-0.5 transition-all text-sm uppercase tracking-wider">
+             Vérifier le code
+          </button>
+        </form>
+      </div>
+
+    </div>
+
+    <div class="text-center mt-6">
+      <a href="{% url 'verifier_qr_scanner' %}" class="inline-flex items-center text-gray-600 bg-white px-5 py-2.5 rounded-full shadow-sm border border-gray-200 hover:bg-gray-50 hover:text-lupopo-blue transition-colors font-semibold text-sm">
+        <i class="fas fa-camera mr-2"></i> Retour au Scanner
+      </a>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

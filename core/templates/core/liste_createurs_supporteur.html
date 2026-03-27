@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Liste des Créateurs - FC Saint Eloi Lupopo{% endblock %}
+
+{% block content %}
+
+<div class="min-h-[85vh] bg-gray-50 py-12 relative z-0">
+    <!-- Decorative background elements -->
+    <div class="absolute top-0 right-0 w-1/3 h-1/3 bg-gradient-to-br from-indigo-50 to-transparent rounded-bl-full -z-10"></div>
+    
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+        <!-- En-tête de page -->
+        <div class="mb-10 text-center md:text-left">
+            <h1 class="text-3xl md:text-4xl font-extrabold text-gray-900 mb-4 tracking-tight">
+                <i class="fas fa-users-cog text-lupopo-blue mr-3"></i> Liste des Créateurs
+            </h1>
+            <p class="text-lg text-gray-600 mb-6">
+                Vue d'ensemble des utilisateurs ayant enregistré des cartes de supporteurs.
+            </p>
+            
+            <div class="flex flex-wrap justify-center md:justify-start gap-4">
+                <div class="inline-flex items-center px-5 py-2.5 bg-white rounded-xl shadow-sm border border-gray-100">
+                    <div class="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-600 mr-3">
+                        <i class="fas fa-user-edit text-lg"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-500 uppercase tracking-wider font-semibold">Total Créateurs</p>
+                        <p class="text-xl font-bold text-gray-900">{{ total_users }}</p>
+                    </div>
+                </div>
+                
+                <div class="inline-flex items-center px-5 py-2.5 bg-white rounded-xl shadow-sm border border-gray-100">
+                    <div class="w-10 h-10 rounded-full bg-yellow-50 flex items-center justify-center text-yellow-600 mr-3">
+                        <i class="fas fa-id-card text-lg"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-500 uppercase tracking-wider font-semibold">Cartes Émises</p>
+                        <p class="text-xl font-bold text-gray-900">{{ total_cartes }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+      
+        <!-- Barre de recherche -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-8">
+            <form method="get" class="flex flex-col sm:flex-row max-w-3xl mx-auto gap-3">
+                <div class="relative flex-1">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fas fa-search text-gray-400"></i>
+                    </div>
+                    <input type="text" name="q" value="{{ query|default:'' }}"
+                           placeholder="Rechercher par province, ville ou commune..."
+                           class="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-lupopo-blue focus:border-transparent transition-all outline-none">
+                </div>
+                <button type="submit" class="px-6 py-3 bg-lupopo-blue text-white font-bold rounded-xl hover:bg-lupopo-dark shadow-md hover:-translate-y-0.5 transition-all flex justify-center items-center">
+                    Filtrer <i class="fas fa-filter ml-2"></i>
+                </button>
+            </form>
+        </div>
+      
+        <!-- Résultats filtrés (Info Banner) -->
+        {% if filtre_active %}
+        <div class="bg-indigo-50 border border-indigo-100 rounded-2xl p-4 mb-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-center">
+                <i class="fas fa-info-circle text-indigo-500 text-xl mr-3"></i>
+                <div>
+                    <p class="text-indigo-900 font-medium">Résultats pour : <span class="font-bold">"{{ filtre_active }}"</span></p>
+                    <p class="text-sm text-indigo-700 mt-1">
+                        {{ total_users_filtre }} créateur(s) trouvés • {{ total_cartes_filtre }} carte(s) au total
+                    </p>
+                </div>
+            </div>
+            {% if query %}
+            <a href="?" class="px-4 py-2 bg-white text-indigo-600 text-sm font-semibold rounded-lg shadow-sm hover:bg-gray-50 border border-indigo-200 transition-colors whitespace-nowrap">
+                Réinitialiser filtre
+            </a>
+            {% endif %}
+        </div>
+        {% endif %}
+      
+        <!-- Liste des créateurs (Cards) -->
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            {% for user in users %}
+            <div class="bg-white rounded-3xl p-6 shadow-sm hover:shadow-lg border border-gray-100 transition-all transform hover:-translate-y-1 group relative overflow-hidden">
+                <!-- Decorative top border -->
+                <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-lupopo-yellow to-lupopo-blue"></div>
+                
+                <div class="flex items-start mb-4 relative z-10">
+                    <!-- Avatar -->
+                    <div class="relative">
+                        {% if user.cree_par__profile_pic %}
+                            <img src="{{ user.cree_par__profile_pic.url }}" alt="{{ user.cree_par__username }}" class="w-16 h-16 object-cover rounded-full border-2 border-white shadow-md">
+                        {% else %}
+                            <div class="w-16 h-16 rounded-full bg-gradient-to-br from-indigo-100 to-blue-50 border-2 border-white shadow-md flex items-center justify-center text-indigo-500 font-bold text-xl">
+                                {{ user.cree_par__username|slice:":1"|upper }}
+                            </div>
+                        {% endif %}
+                        <!-- Stats Badge over Avatar -->
+                        <div class="absolute -bottom-2 -right-2 bg-lupopo-blue text-white text-[10px] font-bold px-2 py-0.5 rounded-full border-2 border-white shadow-sm" title="Cartes créées">
+                            {{ user.nb_supporteurs }}
+                        </div>
+                    </div>
+          
+                    <!-- Infos Principales -->
+                    <div class="ml-4 flex-1">
+                        <h3 class="text-lg font-bold text-gray-900 mb-0.5 truncate pr-2">{{ user.cree_par__username }}</h3>
+                        <p class="text-sm text-gray-500 truncate mb-2">{{ user.cree_par__email }}</p>
+                        
+                        <div class="inline-flex items-center text-xs font-medium text-lupopo-blue bg-blue-50 px-2 py-1 rounded">
+                            <i class="fas fa-id-card-alt mr-1"></i> {{ user.nb_supporteurs }} cartes
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Détails géographiques -->
+                <div class="bg-gray-50 rounded-xl p-3 mb-4 border border-gray-100">
+                    <div class="flex items-start text-sm text-gray-600 mb-1">
+                        <i class="fas fa-map-marker-alt text-red-500 mt-1 mr-2 w-4 text-center"></i>
+                        <span><span class="font-medium text-gray-900">Prov:</span> {{ user.cree_par__province|default:"N/A" }}</span>
+                    </div>
+                    <div class="flex items-start text-sm text-gray-600 mb-1">
+                        <i class="fas fa-city text-gray-400 mt-1 mr-2 w-4 text-center"></i>
+                        <span><span class="font-medium text-gray-900">Ville:</span> {{ user.cree_par__ville|default:"N/A" }}</span>
+                    </div>
+                    <div class="flex items-start text-sm text-gray-600">
+                        <i class="fas fa-home text-gray-400 mt-1 mr-2 w-4 text-center"></i>
+                        <span><span class="font-medium text-gray-900">Commune:</span> {{ user.cree_par__commune|default:"N/A" }}</span>
+                    </div>
+                </div>
+          
+                <!-- Bouton -->
+                <a href="{% url 'profile' user.cree_par__id %}" class="w-full flex items-center justify-center px-4 py-2 bg-gray-50 hover:bg-lupopo-blue hover:text-white text-gray-700 text-sm font-semibold rounded-xl border border-gray-200 transition-colors group-hover:border-lupopo-blue">
+                    <span>Ouvrir le Profil</span> <i class="fas fa-arrow-right ml-2 text-xs transform group-hover:translate-x-1 transition-transform"></i>
+                </a>
+            </div>
+            {% empty %}
+            <div class="col-span-full bg-white rounded-3xl shadow-sm border border-gray-100 p-12 text-center">
+                <div class="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-300">
+                    <i class="fas fa-search text-3xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">Aucun créateur trouvé</h3>
+                <p class="text-gray-500">Essayez de modifier vos termes de recherche (province, ville, etc.)</p>
+                {% if query %}
+                <a href="?" class="mt-4 inline-block px-6 py-2 bg-lupopo-blue text-white font-medium rounded-lg hover:bg-lupopo-dark transition-colors">Effacer la recherche</a>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+      
+        <!-- Pagination -->
+        {% if users.has_other_pages %}
+        <div class="mt-12 flex justify-center">
+            <nav class="inline-flex rounded-xl shadow-sm bg-white border border-gray-200 p-1 gap-1">
+                
+                {% if users.has_previous %}
+                <a href="?page=1{% if query %}&q={{ query }}{% endif %}" class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-500 hover:text-lupopo-blue hover:bg-blue-50 rounded-lg transition-colors" title="Première page">
+                    <i class="fas fa-angle-double-left"></i>
+                </a>
+                <a href="?page={{ users.previous_page_number }}{% if query %}&q={{ query }}{% endif %}" class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-500 hover:text-lupopo-blue hover:bg-blue-50 rounded-lg transition-colors">
+                    <i class="fas fa-angle-left mr-1"></i> Précédent
+                </a>
+                {% endif %}
+                
+                <span class="inline-flex items-center px-4 py-2 text-sm font-bold text-lupopo-dark bg-lupopo-yellow rounded-lg shadow-sm">
+                    {{ users.number }} sur {{ users.paginator.num_pages }}
+                </span>
+                
+                {% if users.has_next %}
+                <a href="?page={{ users.next_page_number }}{% if query %}&q={{ query }}{% endif %}" class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-500 hover:text-lupopo-blue hover:bg-blue-50 rounded-lg transition-colors">
+                    Suivant <i class="fas fa-angle-right ml-1"></i>
+                </a>
+                <a href="?page={{ users.paginator.num_pages }}{% if query %}&q={{ query }}{% endif %}" class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-500 hover:text-lupopo-blue hover:bg-blue-50 rounded-lg transition-colors" title="Dernière page">
+                    <i class="fas fa-angle-double-right"></i>
+                </a>
+                {% endif %}
+
+            </nav>
+        </div>
+        {% endif %}
+      
+    </div>
+</div>
+
+{% endblock %}

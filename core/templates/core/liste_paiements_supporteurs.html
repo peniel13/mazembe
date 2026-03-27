@@ -1,0 +1,201 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Suivi des Paiements Créateur - FC Saint Eloi Lupopo{% endblock %}
+
+{% block content %}
+<div class="min-h-[85vh] bg-gray-50 py-12 relative z-0">
+    <div class="absolute top-0 right-0 w-1/3 h-1/3 bg-gradient-to-br from-indigo-50 to-transparent rounded-bl-full -z-10"></div>
+    <div class="absolute bottom-0 left-0 w-1/4 h-1/4 bg-yellow-50/50 rounded-tr-full -z-10"></div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <!-- Back Link & Header -->
+        <div class="mb-8">
+            <h1 class="text-3xl md:text-4xl font-extrabold text-gray-900 mb-2 tracking-tight flex items-center">
+                <i class="fas fa-file-invoice-dollar text-lupopo-blue mr-3"></i> Paiements déclarés
+            </h1>
+            <p class="text-lg text-gray-600">
+                Aperçu financier des cartes supporteurs gérées par <span class="font-bold text-gray-900 bg-white px-3 py-1 rounded-md border border-gray-200 shadow-sm">{{ user.get_full_name|default:user.email }}</span>
+            </p>
+        </div>
+
+        <!-- Summary Statistics Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+            <!-- Total Validated -->
+            <div class="bg-white rounded-3xl p-6 border-l-4 border-lupopo-blue shadow-sm hover:shadow-md transition-shadow">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-bold text-gray-500 uppercase tracking-wider mb-1">Montant Validé</p>
+                        <p class="text-3xl font-black text-gray-900">{{ montant_validated }} <span class="text-lg text-gray-400 font-bold ml-1">CDF</span></p>
+                    </div>
+                    <div class="w-14 h-14 rounded-full bg-blue-50 text-lupopo-blue flex items-center justify-center text-2xl shadow-inner">
+                        <i class="fas fa-check-double"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Total Pending -->
+            <div class="bg-white rounded-3xl p-6 border-l-4 border-yellow-400 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-24 h-24 bg-yellow-50 rounded-bl-full -z-10"></div>
+                <div class="flex items-center justify-between relative z-10">
+                    <div>
+                        <p class="text-sm font-bold text-gray-500 uppercase tracking-wider mb-1">En Cours de Traitement</p>
+                        <p class="text-3xl font-black text-gray-900">{{ montant_pending }} <span class="text-lg text-gray-400 font-bold ml-1">CDF</span></p>
+                    </div>
+                    <div class="w-14 h-14 rounded-full bg-yellow-50 text-yellow-600 flex items-center justify-center text-2xl shadow-inner">
+                        <i class="fas fa-hourglass-half"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Grand Total -->
+            <div class="bg-lupopo-dark text-white rounded-3xl p-6 shadow-lg relative overflow-hidden transform hover:-translate-y-1 transition-transform">
+                <!-- Abstract BG -->
+                <div class="absolute -right-10 -top-10 w-40 h-40 bg-white/5 rounded-full blur-xl"></div>
+                <div class="flex items-center justify-between relative z-10">
+                    <div>
+                        <p class="text-sm font-bold text-gray-300 uppercase tracking-wider mb-1">Total Déclaré</p>
+                        <p class="text-3xl font-black text-lupopo-yellow">{{ montant_total }} <span class="text-lg text-white/70 font-bold ml-1">CDF</span></p>
+                    </div>
+                    <div class="w-14 h-14 rounded-full bg-white/10 text-white border border-white/20 flex items-center justify-center text-2xl shadow-inner">
+                        <i class="fas fa-hand-holding-usd"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Table Container -->
+        <div class="bg-white rounded-3xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] border border-gray-100 overflow-hidden mb-10">
+            
+            <div class="p-5 border-b border-gray-100 bg-gray-50/80 flex justify-between items-center">
+                <h2 class="font-bold text-gray-900 text-lg"><i class="fas fa-list text-gray-400 mr-2"></i> Transactions Historiques</h2>
+            </div>
+
+            {% if paiements %}
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse min-w-[1000px]">
+                    <thead>
+                        <tr class="bg-white border-b border-gray-200">
+                            <th class="py-4 px-6 text-xs font-bold text-gray-500 uppercase tracking-wider w-36">Date</th>
+                            <th class="py-4 px-6 text-xs font-bold text-gray-500 uppercase tracking-wider">Référence</th>
+                            <th class="py-4 px-6 text-xs font-bold text-gray-500 uppercase tracking-wider">Montant</th>
+                            <th class="py-4 px-6 text-xs font-bold text-gray-500 uppercase tracking-wider">Téléphone d'envoi</th>
+                            <th class="py-4 px-6 text-xs font-bold text-gray-500 uppercase tracking-wider">Statut</th>
+                            <th class="py-4 px-6 text-xs font-bold text-gray-500 uppercase tracking-wider text-right">Contrôleur</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100">
+                        {% for paiement in paiements %}
+                        <tr class="hover:bg-gray-50/50 transition-colors group cursor-default">
+                            <!-- Date & Time -->
+                            <td class="py-4 px-6 align-middle">
+                                <div class="flex items-center text-sm font-medium text-gray-600">
+                                    <i class="far fa-calendar-alt w-5 text-center mr-1 text-gray-400"></i> {{ paiement.date_paiement|date:"d/m/Y" }}
+                                </div>
+                                <div class="text-xs font-bold text-gray-400 mt-1 pl-6">{{ paiement.date_paiement|date:"H:i" }}</div>
+                            </td>
+                            
+                            <!-- Transaction ID -->
+                            <td class="py-4 px-6 align-middle">
+                                <span class="text-xs font-bold text-indigo-700 bg-indigo-50 border border-indigo-100 px-2 py-1 rounded inline-block uppercase tracking-wider">
+                                    {{ paiement.id_transaction }}
+                                </span>
+                            </td>
+
+                            <!-- Amount -->
+                            <td class="py-4 px-6 align-middle">
+                                <span class="font-black text-gray-900 text-sm">
+                                    {{ paiement.montant }} <span class="text-xs text-gray-500 ml-0.5">{{ paiement.devise }}</span>
+                                </span>
+                            </td>
+                            
+                            <!-- Phone -->
+                            <td class="py-4 px-6 align-middle">
+                                <span class="font-mono text-gray-600 text-sm bg-gray-50 px-2 py-1 border border-gray-100 rounded">{{ paiement.phone_number }}</span>
+                            </td>
+                            
+                            <!-- Status -->
+                            <td class="py-4 px-6 align-middle">
+                                {% if paiement.statut == "pending" %}
+                                    <span class="inline-flex items-center px-2.5 py-1 rounded-lg border border-yellow-200 bg-yellow-50 text-yellow-700 text-xs font-bold">
+                                        <i class="fas fa-hourglass-half mr-1.5 text-yellow-500"></i> En attente
+                                    </span>
+                                {% elif paiement.statut == "validated" %}
+                                    <span class="inline-flex items-center px-2.5 py-1 rounded-lg border border-green-200 bg-green-50 text-green-700 text-xs font-bold">
+                                        <i class="fas fa-check mr-1.5 text-green-500"></i> Validé
+                                    </span>
+                                {% else %}
+                                    <span class="inline-flex items-center px-2.5 py-1 rounded-lg border border-red-200 bg-red-50 text-red-700 text-xs font-bold">
+                                        <i class="fas fa-times mr-1.5 text-red-500"></i> Refusé
+                                    </span>
+                                {% endif %}
+                            </td>
+
+                            <!-- Approved By -->
+                            <td class="py-4 px-6 align-middle text-right">
+                                {% if paiement.valide_par %}
+                                <div class="inline-flex items-center">
+                                    <div class="w-6 h-6 rounded-full bg-gray-200 text-gray-600 flex items-center justify-center text-[10px] font-bold mr-2">
+                                        {{ paiement.valide_par.get_full_name|slice:":1"|upper|default:paiement.valide_par.email|slice:":1"|upper }}
+                                    </div>
+                                    <span class="text-sm font-semibold text-gray-700">{{ paiement.valide_par.get_full_name|default:paiement.valide_par.email }}</span>
+                                </div>
+                                {% else %}
+                                <span class="text-gray-400 text-sm italic">-</span>
+                                {% endif %}
+                            </td>
+                            
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            {% if page_obj.has_other_pages %}
+            <div class="px-6 py-4 border-t border-gray-100 bg-gray-50 flex justify-center">
+                <nav class="inline-flex rounded-xl shadow-sm bg-white border border-gray-200 p-1 gap-1">
+                    
+                    {% if page_obj.has_previous %}
+                    <a href="?page={{ page_obj.previous_page_number }}" class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-500 hover:text-lupopo-blue hover:bg-blue-50 rounded-lg transition-colors">
+                        <i class="fas fa-angle-left"></i>
+                    </a>
+                    {% endif %}
+                    
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                            <span class="inline-flex items-center px-3.5 py-2 text-sm font-bold text-white bg-lupopo-blue rounded-lg shadow-sm">
+                                {{ num }}
+                            </span>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                            <a href="?page={{ num }}" class="inline-flex items-center px-3.5 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 rounded-lg transition-colors">
+                                {{ num }}
+                            </a>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}" class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-500 hover:text-lupopo-blue hover:bg-blue-50 rounded-lg transition-colors">
+                        <i class="fas fa-angle-right"></i>
+                    </a>
+                    {% endif %}
+
+                </nav>
+            </div>
+            {% endif %}
+
+            {% else %}
+            <div class="py-16 text-center bg-white border-t border-gray-100">
+                <div class="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4 border border-gray-100">
+                    <i class="fas fa-box-open text-3xl text-gray-300"></i>
+                </div>
+                <h3 class="text-lg font-bold text-gray-900 mb-1">Aucune donnée disponible</h3>
+                <p class="text-gray-500 font-medium">Vous n'avez aucun paiement enregistré pour le moment.</p>
+            </div>
+            {% endif %}
+
+        </div>
+    </div>
+</div>
+{% endblock %}

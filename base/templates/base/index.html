@@ -1,0 +1,776 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<header class="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
+    <!-- Background Image with Parallax effect -->
+    <div class="absolute inset-0 z-0">
+        <img src="{% static 'img/supporteurlumpa.jpg' %}" alt="Background" class="w-full h-full object-cover object-center transform scale-105">
+        <!-- Modern gradient overlay: Dark blue to transparent to dark blue -->
+        <div class="absolute inset-0 bg-gradient-to-br from-lupopo-dark/95 via-lupopo-dark/70 to-lupopo-blue/80 mix-blend-multiply"></div>
+    </div>
+    
+    <!-- Hero Content -->
+    <div class="relative z-20 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center text-center pt-20 pb-24 md:pb-32">
+        
+        <!-- Badge -->
+        <div class="inline-flex items-center px-4 py-2 rounded-full bg-white/10 border border-white/20 backdrop-blur-md mb-8 animate-fade-in-up">
+            <span class="w-2 h-2 rounded-full bg-lupopo-yellow animate-pulse mr-2"></span>
+            <span class="text-sm font-medium text-white tracking-wide">Plateforme Officielle des Supporteurs</span>
+        </div>
+
+        <!-- Main Heading -->
+        <h1 class="text-5xl md:text-7xl font-extrabold text-white tracking-tight mb-6 drop-shadow-lg">
+            TOUT PUISSANT MAZEMBE
+            <span class="block text-transparent bg-clip-text bg-gradient-to-r from-lupopo-yellow to-yellow-300 mt-2">
+                100% ENGLEBERT !
+            </span>
+        </h1>
+
+        <!-- Subheading -->
+        <p class="mt-4 text-lg md:text-xl text-gray-200 max-w-3xl mx-auto font-light leading-relaxed mb-10 drop-shadow">
+            Obtenez votre carte de supporteur officielle en ligne. Une preuve irréfutable de votre appartenance au plus grand club de football.
+            Rejoignez la famille et soutenez votre équipe !
+        </p>
+
+        <!-- CTA Buttons -->
+        <div class="flex flex-col sm:flex-row gap-4 justify-center w-full max-w-md mx-auto">
+            {% if not request.user.is_authenticated %}
+                <a href="{% url 'signup' %}" class="px-8 py-4 rounded-xl font-bold text-lupopo-dark bg-lupopo-yellow hover:bg-yellow-400 shadow-[0_0_20px_rgba(255,209,0,0.4)] hover:shadow-[0_0_30px_rgba(255,209,0,0.6)] hover:-translate-y-1 transition-all duration-300 flex items-center justify-center group">
+                    Créer mon compte
+                    <i class="fas fa-arrow-right ml-2 group-hover:translate-x-1 transition-transform"></i>
+                </a>
+            {% else %}
+                <a href="#form-recherche" class="px-8 py-4 rounded-xl font-bold text-white bg-white/20 hover:bg-white/30 border border-white/30 backdrop-blur-md hover:-translate-y-1 transition-all duration-300 flex items-center justify-center">
+                    Rechercher une carte
+                    <i class="fas fa-search ml-2"></i>
+                </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Decorative Bottom Divider -->
+    <div class="absolute bottom-0 left-0 w-full overflow-hidden leading-none z-10">
+        <svg class="relative block w-full h-[50px] md:h-[100px]" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
+            <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V120H0V0C73.44,28.87,147.2,46.91,221.56,53.84,255.44,57,289.47,58.45,321.39,56.44Z" class="fill-gray-50"></path>
+        </svg>
+    </div>
+</header>
+
+<!-- Section Contributions & Dépenses -->
+<section class="py-16 bg-gray-50 relative -mt-10 z-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl md:text-4xl font-bold text-lupopo-dark mb-4">Financement du Club</h2>
+            <div class="w-24 h-1 bg-lupopo-yellow mx-auto rounded-full"></div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <!-- Paiements Contributions -->
+            <div class="bg-white rounded-3xl shadow-xl shadow-gray-200/50 p-8 border border-gray-100 transform hover:-translate-y-2 transition-all duration-300 group">
+                <div class="w-14 h-14 rounded-2xl bg-blue-50 text-lupopo-blue flex items-center justify-center text-2xl mb-6 group-hover:bg-lupopo-blue group-hover:text-white transition-colors duration-300">
+                    <i class="fas fa-hand-holding-usd"></i>
+                </div>
+                <h3 class="text-gray-500 font-medium text-sm uppercase tracking-wider mb-2">Contributions Totales</h3>
+                <div class="flex items-baseline">
+                    <p class="text-3xl md:text-4xl font-extrabold text-lupopo-dark count" data-count="{{ total_paiements }}">0</p>
+                    <span class="ml-2 text-lg font-bold text-gray-400">CDF</span>
+                </div>
+            </div>
+
+            <!-- Dépenses -->
+            <div class="bg-white rounded-3xl shadow-xl shadow-gray-200/50 p-8 border border-gray-100 transform hover:-translate-y-2 transition-all duration-300 group">
+                <div class="w-14 h-14 rounded-2xl bg-red-50 text-red-500 flex items-center justify-center text-2xl mb-6 group-hover:bg-red-500 group-hover:text-white transition-colors duration-300">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <h3 class="text-gray-500 font-medium text-sm uppercase tracking-wider mb-2">Dépenses Enregistrées</h3>
+                <div class="flex items-baseline">
+                    <p class="text-3xl md:text-4xl font-extrabold text-red-600 count" data-count="{{ total_depenses }}">0</p>
+                    <span class="ml-2 text-lg font-bold text-gray-400">CDF</span>
+                </div>
+            </div>
+
+            <!-- Solde restant -->
+            <div class="bg-white rounded-3xl shadow-xl shadow-gray-200/50 p-8 border border-gray-100 transform hover:-translate-y-2 transition-all duration-300 group relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-green-50 to-transparent rounded-bl-full -z-10"></div>
+                <div class="w-14 h-14 rounded-2xl bg-green-50 text-green-500 flex items-center justify-center text-2xl mb-6 group-hover:bg-green-500 group-hover:text-white transition-colors duration-300">
+                    <i class="fas fa-wallet"></i>
+                </div>
+                <h3 class="text-gray-500 font-medium text-sm uppercase tracking-wider mb-2">Solde Restant</h3>
+                <div class="flex items-baseline">
+                    <p class="text-3xl md:text-4xl font-extrabold {% if solde_rest >= 0 %}text-green-600{% else %}text-red-600{% endif %} count" data-count="{{ solde_rest }}">0</p>
+                    <span class="ml-2 text-lg font-bold text-gray-400">CDF</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<section class="py-20 relative overflow-hidden bg-lupopo-dark text-white text-center">
+    <!-- Abstract Background Pattern -->
+    <div class="absolute inset-0 opacity-10">
+        <svg class="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+            <path d="M0,0 L100,0 L100,100 Z" fill="currentColor"></path>
+        </svg>
+    </div>
+
+    <div class="relative z-10 max-w-4xl mx-auto px-4">
+        <span class="text-lupopo-yellow font-semibold tracking-wider uppercase text-sm mb-4 block">L'Union fait la force</span>
+        <h2 class="text-4xl md:text-5xl font-extrabold mb-6">
+            La Grande Famille des MAZEMBE
+        </h2>
+        <p class="text-gray-300 mb-8 text-lg">
+            Rejoignez des milliers de supporters passionnés. Ensemble, nous sommes invincibles.
+        </p>
+
+        <div class="inline-block bg-white/10 backdrop-blur-md rounded-3xl p-8 border border-white/20 shadow-2xl">
+            <div class="text-6xl md:text-8xl font-black text-transparent bg-clip-text bg-gradient-to-br from-lupopo-yellow to-yellow-500 drop-shadow-md">
+                <span id="supporteur-counter" data-target="{{ total_supporteurs }}">0</span>
+            </div>
+            <div class="mt-2 text-gray-200 font-medium uppercase tracking-widest text-sm">Supporteurs Enregistrés</div>
+        </div>
+    </div>
+</section>
+
+<div class="py-20 bg-white flex flex-col items-center justify-start px-4">
+    <!-- Search Header -->
+    <div class="text-center max-w-3xl mx-auto mb-10">
+        <h1 class="text-3xl md:text-5xl font-bold text-gray-900 mb-4 tracking-tight">
+            Vérifier un Supporteur
+        </h1>
+        <p class="text-gray-500 text-lg">Entrez les informations ci-dessous pour trouver une carte de membre.</p>
+    </div>
+  
+    <!-- Modern Search Bar -->
+    <form method="get" id="form-recherche" class="w-full max-w-2xl relative group">
+        <div class="absolute -inset-1 bg-gradient-to-r from-lupopo-blue to-lupopo-yellow rounded-full blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
+        <div class="relative flex items-center bg-white rounded-full shadow-lg p-2 border border-gray-100">
+            <div class="pl-4 pr-2 text-gray-400">
+                <i class="fas fa-search text-xl"></i>
+            </div>
+            <input type="text" name="q" placeholder="Prénom, nom, ou 3 derniers chiffres..."
+                 value="{{ query|default:'' }}"
+                 class="flex-grow px-3 py-3 text-gray-700 bg-transparent focus:outline-none text-lg placeholder-gray-400">
+      
+            <button type="submit"
+                  class="w-12 h-12 flex items-center justify-center bg-lupopo-blue text-white rounded-full hover:bg-lupopo-dark hover:shadow-lg transition-all duration-300 transform hover:scale-105">
+                <i class="fas fa-arrow-right"></i>
+            </button>
+        </div>
+    </form>
+    <!-- Résultats -->
+    {% comment %} {% if query %}
+      <div id="resultats-cartes" class="w-full max-w-4xl mt-6">
+        {% if citoyens and citoyens %}
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for citoyen in citoyens %}
+              <div class="bg-white p-4 rounded-2xl shadow hover:shadow-md transition">
+                <div class="flex items-center space-x-4">
+                  {% if citoyen.photo %}
+                    <img src="{{ citoyen.photo.url }}" alt="{{ citoyen.prenom }}" class="w-16 h-16 object-cover rounded-full">
+                  {% else %}
+                    <div class="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center text-gray-500"> ? </div>
+                  {% endif %}
+                  <div>
+                    <p class="font-semibold">{{ citoyen.prenom }} {{ citoyen.nom }} {{ citoyen.postnom }}</p>
+                    <p class="text-sm text-gray-500">N° ID: {{ citoyen.numero_identite }}</p>
+                    <p class="text-sm text-gray-500">
+                      Statut:
+                      {% if citoyen.statut == 'valid' %}
+                        <span class="text-green-600">✅ Valide</span>
+                      {% elif citoyen.statut == 'pending' %}
+                        <span class="text-yellow-600">⏳ En attente</span>
+                      {% else %}
+                        <span class="text-red-600">❌ Invalide</span>
+                      {% endif %}
+                    </p>
+                  </div>
+                </div>
+                <div class="mt-3 flex flex-wrap justify-end gap-2">
+                  <a href="{% url 'telecharger_carte_image' citoyen.id %}"
+                     class="px-3 py-1 bg-indigo-600 text-white rounded-lg text-sm hover:bg-indigo-700">
+                    Télécharger
+                  </a>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+  
+          <!-- Pagination -->
+          {% if citoyens.has_other_pages %}
+            <div class="mt-8 mb-10 flex justify-center">
+              <ul class="flex space-x-2">
+                {% if citoyens.has_previous %}
+                  <li>
+                    <a href="?q={{ query }}&page={{ citoyens.previous_page_number }}#resultats-cartes"
+                       class="px-3 py-1 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">&lt;</a>
+                  </li>
+                {% endif %}
+                <li>
+                  <span class="px-3 py-1 bg-indigo-600 text-white rounded-lg">{{ citoyens.number }}</span>
+                </li>
+                {% if citoyens.has_next %}
+                  <li>
+                    <a href="?q={{ query }}&page={{ citoyens.next_page_number }}#resultats-cartes"
+                       class="px-3 py-1 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">&gt;</a>
+                  </li>
+                {% endif %}
+              </ul>
+            </div>
+          {% endif %}
+        {% else %}
+          <p class="text-gray-500 text-center">Aucune carte trouveé.</p>
+        {% endif %}
+      </div> {% endcomment %}
+      {% if query %}
+{% comment %} <div id="resultats-cartes" class="w-full max-w-4xl mt-6">
+  {% if supporteurs %}
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {% for supporteur in supporteurs %}
+        <div class="bg-white p-4 rounded-2xl shadow hover:shadow-md transition">
+          <div class="flex items-center space-x-4">
+            {% if supporteur.photo %}
+              <img src="{{ supporteur.photo.url }}" alt="{{ supporteur.prenom }}" class="w-16 h-16 object-cover rounded-full">
+            {% else %}
+              <div class="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center text-gray-500">?</div>
+            {% endif %}
+
+            <div>
+              <p class="font-semibold">{{ supporteur.prenom }} {{ supporteur.nom }} {{ supporteur.postnom }}</p>
+              <p class="text-sm text-gray-500">N° ID: {{ supporteur.numero_supporteur }}</p>
+
+              <p class="text-sm text-gray-500">
+                Statut:
+                {% if supporteur.statut == 'valid' %}
+                  <span class="text-green-600">✅ Valide</span>
+                {% elif supporteur.statut == 'pending' %}
+                  <span class="text-yellow-600">⏳ En attente</span>
+                {% else %}
+                  <span class="text-red-600">❌ Bloqué</span>
+                {% endif %}
+              </p>
+            </div>
+          </div>
+
+          <div class="mt-3 flex flex-wrap justify-end gap-2">
+            <a href="{% url 'telecharger_carte_supporteur_image' supporteur.id %}"
+               class="px-3 py-1 bg-indigo-600 text-white rounded-lg text-sm hover:bg-indigo-700">
+              Télécharger
+            </a>
+          </div>
+        </div>
+      {% endfor %}
+    </div> {% endcomment %}
+    <div id="resultats-cartes" class="w-full max-w-6xl mt-6">
+        {% if supporteurs %}
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            
+            {% for supporteur in supporteurs %}
+            <div class="bg-white rounded-2xl p-5 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] border border-gray-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group flex flex-col h-full">
+      
+              <!-- HEADER -->
+              <div class="flex items-start gap-4 mb-4">
+      
+                <!-- PHOTO -->
+                <div class="relative flex-shrink-0">
+                  {% if supporteur.photo %}
+                    <img src="{{ supporteur.photo.url }}" 
+                         alt="{{ supporteur.prenom }}"
+                         class="w-16 h-16 object-cover rounded-xl shadow-sm border border-gray-100 group-hover:border-lupopo-yellow transition-colors">
+                  {% else %}
+                    <div class="w-16 h-16 bg-gray-50 rounded-xl flex items-center justify-center text-gray-400 border border-gray-200 group-hover:border-lupopo-yellow transition-colors">
+                      <i class="fas fa-user text-2xl"></i>
+                    </div>
+                  {% endif %}
+      
+                  <!-- BADGE STATUT -->
+                  <div class="absolute -bottom-2 -right-2">
+                    {% if supporteur.statut == 'valid' %}
+                      <div class="w-6 h-6 rounded-full bg-green-500 border-2 border-white flex items-center justify-center text-white shadow-sm">
+                        <i class="fas fa-check text-[10px]"></i>
+                      </div>
+                    {% elif supporteur.statut == 'pending' %}
+                      <div class="w-6 h-6 rounded-full bg-yellow-400 border-2 border-white flex items-center justify-center text-white shadow-sm">
+                        <i class="fas fa-hourglass-half text-[10px]"></i>
+                      </div>
+                    {% else %}
+                      <div class="w-6 h-6 rounded-full bg-red-500 border-2 border-white flex items-center justify-center text-white shadow-sm">
+                        <i class="fas fa-times text-[10px]"></i>
+                      </div>
+                    {% endif %}
+                  </div>
+                </div>
+      
+                <!-- INFOS -->
+                <div class="flex-1 min-w-0 pt-1">
+                  <h3 class="font-bold text-gray-900 truncate">
+                    {{ supporteur.prenom }} {{ supporteur.nom }}
+                  </h3>
+      
+                  <p class="text-xs text-gray-500 truncate">
+                    {{ supporteur.postnom }}
+                  </p>
+      
+                  <div class="mt-1 inline-flex items-center px-2 py-0.5 rounded text-xs font-mono font-medium
+                    {% if supporteur.statut == 'valid' %}
+                      bg-green-50 text-green-700
+                    {% elif supporteur.statut == 'pending' %}
+                      bg-yellow-50 text-yellow-700
+                    {% else %}
+                      bg-red-50 text-red-700
+                    {% endif %}
+                  ">
+                    ID: {{ supporteur.numero_supporteur }}
+                  </div>
+                </div>
+              </div>
+      
+              <!-- STATUT TEXTE -->
+              <div class="mb-3 text-sm">
+                {% if supporteur.statut == 'valid' %}
+                  <span class="text-green-600 font-semibold">✅ Valide</span>
+                {% elif supporteur.statut == 'pending' %}
+                  <span class="text-yellow-600 font-semibold">⏳ En attente</span>
+                {% else %}
+                  <span class="text-red-600 font-semibold">❌ Bloqué</span>
+                {% endif %}
+              </div>
+      
+              <!-- ACTIONS -->
+              <div class="mt-auto pt-4 flex gap-2 border-t border-gray-50">
+      
+                 <a href="{% url 'supporteur_detail' supporteur.id %}"
+                   class="flex-1 inline-flex items-center justify-center px-3 py-2 text-xs font-semibold rounded-lg text-gray-700 bg-gray-50 hover:bg-gray-100 hover:text-lupopo-blue border border-gray-200 transition-colors">
+                  <i class="far fa-eye mr-1.5"></i> Détails
+                </a> 
+      
+                {% if supporteur.statut == 'valid' %}
+                <a href="{% url 'telecharger_carte_supporteur_image' supporteur.id %}"
+                   class="flex-1 inline-flex items-center justify-center px-3 py-2 text-xs font-semibold rounded-lg text-white bg-lupopo-blue hover:bg-lupopo-dark shadow-sm transition-colors">
+                  <i class="fas fa-download mr-1.5 text-lupopo-yellow"></i> Carte
+                </a>
+                {% endif %}
+      
+              </div>
+      
+            </div>
+            {% endfor %}
+      
+          </div>
+      
+       
+
+    <!-- Pagination -->
+    {% if supporteurs.has_other_pages %}
+    <div class="mt-8 mb-10 flex justify-center">
+      <ul class="flex space-x-2">
+        {% if supporteurs.has_previous %}
+        <li>
+          <a href="?q={{ query }}&page={{ supporteurs.previous_page_number }}#resultats-cartes"
+             class="px-3 py-1 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">&lt;</a>
+        </li>
+        {% endif %}
+
+        <li>
+          <span class="px-3 py-1 bg-indigo-600 text-white rounded-lg">{{ supporteurs.number }}</span>
+        </li>
+
+        {% if supporteurs.has_next %}
+        <li>
+          <a href="?q={{ query }}&page={{ supporteurs.next_page_number }}#resultats-cartes"
+             class="px-3 py-1 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">&gt;</a>
+        </li>
+        {% endif %}
+      </ul>
+    </div>
+    {% endif %}
+
+  {% else %}
+    <p class="text-gray-500 text-center">Aucune carte trouvée.</p>
+  {% endif %}
+</div>
+
+    {% else %}
+      <!-- Image affichée avant recherche -->
+      <div class="mt-10 flex justify-center">
+        <img src="{% static 'img/cartemain.png' %}" alt="Carte UDPS" class="max-w-md w-full rounded-xl shadow-md">
+      </div>
+    {% endif %}
+  </div>
+ 
+<section class="py-20 bg-gray-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    
+        <div class="flex flex-col md:flex-row justify-between items-end mb-12">
+            <div>
+                <span class="text-lupopo-blue font-semibold tracking-wider uppercase text-sm mb-2 block">Top Soutiens</span>
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900">
+                    Dernières Contributions
+                </h2>
+            </div>
+            <a href="{% url 'liste_paiements_contributions' %}" class="hidden md:inline-flex items-center text-lupopo-blue font-semibold hover:text-lupopo-dark group">
+                Voir tout l'historique
+                <i class="fas fa-arrow-right ml-2 group-hover:translate-x-1 transition-transform"></i>
+            </a>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {% for paiement in recent_paiements %}
+            <div class="bg-white rounded-3xl p-6 shadow-lg shadow-gray-200/50 border border-gray-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+                <div class="flex items-center gap-4">
+                    <!-- Avatar -->
+                    <div class="relative">
+                        {% if paiement.user.profile_pic %}
+                        <img class="h-16 w-16 rounded-full object-cover border-2 border-lupopo-yellow" src="{{ paiement.user.profile_pic.url }}">
+                        {% else %}
+                        <div class="h-16 w-16 rounded-full bg-gradient-to-br from-lupopo-blue to-lupopo-dark flex items-center justify-center text-white font-bold text-xl border-2 border-lupopo-yellow">
+                            {{ paiement.user.username|slice:":1"|upper }}
+                        </div>
+                        {% endif %}
+                        <div class="absolute -bottom-1 -right-1 bg-green-500 w-5 h-5 rounded-full border-2 border-white flex items-center justify-center">
+                            <i class="fas fa-check text-[10px] text-white"></i>
+                        </div>
+                    </div>
+                
+                    <div>
+                        <!-- Nom -->
+                        <h4 class="font-bold text-gray-900 text-lg">
+                            {{ paiement.user.username }}
+                        </h4>
+                        <!-- Date -->
+                        <p class="text-gray-500 text-sm flex items-center mt-1">
+                            <i class="far fa-clock mr-1"></i> {{ paiement.date_paiement|date:"d M Y" }}
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="mt-6 pt-6 border-t border-gray-100 flex justify-between items-center">
+                    <span class="text-gray-500 text-sm">Montant versé</span>
+                    <span class="text-lupopo-dark font-extrabold text-xl px-3 py-1 bg-yellow-50 text-yellow-700 rounded-lg">
+                        + {{ paiement.montant_total }} CDF
+                    </span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="mt-8 text-center md:hidden">
+            <a href="{% url 'liste_paiements_contributions' %}" class="inline-flex items-center justify-center w-full px-6 py-3 border border-gray-300 shadow-sm text-base font-medium rounded-xl text-gray-700 bg-white hover:bg-gray-50">
+                Voir tout l'historique
+            </a>
+        </div>
+    </div>
+</section>
+
+<section class="py-20 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <div class="flex flex-col md:flex-row justify-between items-end mb-12">
+            <div>
+                <span class="text-red-500 font-semibold tracking-wider uppercase text-sm mb-2 block">Transparence</span>
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900">
+                    Dernières Dépenses
+                </h2>
+            </div>
+            <a href="{% url 'liste_depenses' %}" class="hidden md:inline-flex items-center text-red-500 font-semibold hover:text-red-700 group">
+                Voir toutes les dépenses
+                <i class="fas fa-arrow-right ml-2 group-hover:translate-x-1 transition-transform"></i>
+            </a>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {% for depense in recent_depenses %}
+            <a href="{% url 'detail_depense' depense.id %}" class="group block">
+                <div class="bg-gray-50 rounded-3xl p-6 border border-gray-200 hover:border-red-200 hover:bg-red-50/30 transition-all duration-300 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-24 h-24 bg-red-100 rounded-bl-full -z-10 group-hover:scale-110 transition-transform"></div>
+                    
+                    <div class="flex justify-between items-start mb-4">
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-white text-gray-800 border border-gray-200 shadow-sm">
+                            <i class="fas fa-tag mr-1.5 text-gray-400"></i> {{ depense.rubrique.nom }}
+                        </span>
+                        {% if depense.preuve %}
+                        <span class="text-lupopo-blue text-sm" title="Preuve disponible"><i class="fas fa-paperclip"></i></span>
+                        {% endif %}
+                    </div>
+                    
+                    <h3 class="text-lg font-bold text-gray-900 mb-2 group-hover:text-red-600 transition-colors">
+                        {{ depense.titre }}
+                    </h3>
+                    
+                    <div class="mt-6 pt-6 border-t border-gray-200 flex justify-between items-center group-hover:border-red-100 transition-colors">
+                        <div class="flex items-center text-gray-500 text-sm">
+                            <i class="far fa-calendar-alt mr-1.5"></i> {{ depense.date_depense|date:"d M Y" }}
+                        </div>
+                        <span class="text-red-600 font-extrabold text-lg">
+                            - {{ depense.montant }} CDF
+                        </span>
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        
+        <div class="mt-8 text-center md:hidden">
+            <a href="{% url 'liste_depenses' %}" class="inline-flex items-center justify-center w-full px-6 py-3 border border-gray-300 shadow-sm text-base font-medium rounded-xl text-gray-700 bg-white hover:bg-gray-50">
+                Voir toutes les dépenses
+            </a>
+        </div>
+    </div>
+</section>
+
+<section class="py-20 bg-gray-50 border-t border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+            <span class="text-lupopo-blue font-semibold tracking-wider uppercase text-sm mb-2 block">Actualités</span>
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+                Communications officielles
+            </h2>
+            <div class="w-24 h-1 bg-lupopo-yellow mx-auto rounded-full"></div>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {% for news in recent_news %}
+            <article class="bg-white rounded-3xl overflow-hidden shadow-lg shadow-gray-200/40 border border-gray-100 flex flex-col hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+                <!-- Media -->
+                {% if news.media_file %}
+                    <div class="relative h-48 sm:h-56 overflow-hidden">
+                        {% if news.media_type == 'photo' %}
+                            <img src="{{ news.media_file.url }}" alt="{{ news.title }}" class="w-full h-full object-cover transition-transform duration-500 hover:scale-105">
+                        {% elif news.media_type == 'video' %}
+                            <video class="w-full h-full object-cover">
+                                <source src="{{ news.media_file.url }}" type="video/mp4">
+                            </video>
+                            <div class="absolute inset-0 bg-black/30 flex items-center justify-center">
+                                <div class="w-12 h-12 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center text-lupopo-dark">
+                                    <i class="fas fa-play ml-1"></i>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                {% else %}
+                    <div class="h-48 sm:h-56 bg-gray-100 flex flex-col items-center justify-center text-gray-400">
+                        <i class="fas fa-image text-4xl mb-2"></i>
+                        <span class="text-sm">Aucun média</span>
+                    </div>
+                {% endif %}
+                
+                <div class="p-6 flex-1 flex flex-col">
+                    <!-- Date et Titre -->
+                    <div class="mb-4">
+                        <div class="flex items-center text-xs text-gray-500 font-medium mb-3">
+                            <i class="far fa-calendar mr-1.5"></i> {{ news.created_at|date:"d M Y" }}
+                            <span class="mx-2">•</span>
+                            <i class="far fa-clock mr-1.5"></i> {{ news.created_at|date:"H:i" }}
+                        </div>
+                        <h3 class="font-bold text-xl text-gray-900 line-clamp-2 hover:text-lupopo-blue transition-colors">
+                            <a href="{% url 'detail_news' news.id %}">{{ news.title }}</a>
+                        </h3>
+                    </div>
+                    
+                    <!-- Contenu -->
+                    {% if news.content %}
+                    <p class="text-gray-600 text-sm line-clamp-3 mb-6 flex-1">
+                        {{ news.content }}
+                    </p>
+                    {% endif %}
+                    
+                    <!-- Footer Info (Auteur & Stats) -->
+                    <div class="mt-auto pt-4 border-t border-gray-100 flex items-center justify-between">
+                        <!-- Auteur -->
+                        <div class="flex items-center">
+                            {% if news.author.profile.profile_pic %}
+                                <img src="{{ news.author.profile.profile_pic.url }}" alt="Auteur" class="w-8 h-8 rounded-full object-cover mr-2 border border-gray-200">
+                            {% else %}
+                                <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 text-xs font-bold mr-2">
+                                    {{ news.author.get_full_name|slice:":1"|upper|default:"A" }}
+                                </div>
+                            {% endif %}
+                            <span class="text-sm font-medium text-gray-700">{{ news.author.get_full_name }}</span>
+                        </div>
+                        
+                        <!-- Stats & Action -->
+                        <div class="flex items-center space-x-3 text-gray-400 text-sm">
+                            <span title="Likes" class="flex items-center"><i class="far fa-thumbs-up mr-1 text-lupopo-blue"></i> {{ news.total_likes }}</span>
+                            <span title="Commentaires" class="flex items-center"><i class="far fa-comment mr-1"></i> {{ news.total_comments }}</span>
+                        </div>
+                    </div>
+                </div>
+            </article>
+            {% endfor %}
+        </div>
+        
+        <div class="mt-12 text-center">
+            <a href="{% url 'news_list' %}" class="inline-flex items-center justify-center px-8 py-3.5 border border-transparent text-base font-bold rounded-xl text-white bg-lupopo-dark hover:bg-gray-800 shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5">
+                Voir toutes les actualités
+            </a>
+        </div>
+    </div>
+</section>
+<section class="relative bg-lupopo-dark py-20 overflow-hidden text-white" style="background-image: url('{% static "img/lumpa2.jpg" %}'); background-size: cover; background-position: center; background-attachment: fixed;">
+    <div class="absolute inset-0 bg-lupopo-dark/80 backdrop-blur-sm"></div>
+    
+    <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-col lg:flex-row gap-12 lg:gap-24">
+            
+            <!-- Informations -->
+            <div class="lg:w-1/2 flex flex-col justify-center">
+                <h2 class="text-3xl md:text-5xl font-bold mb-6 text-white tracking-tight">Besoin d'aide ?</h2>
+                <div class="w-20 h-1 bg-lupopo-yellow mb-8"></div>
+                
+                <p class="text-gray-300 text-lg mb-10 leading-relaxed">
+                    Notre équipe de support est disponible 7j/7 pour répondre à toutes vos questions concernant les inscriptions, les cartes de membres, ou le club.
+                </p>
+
+                <div class="space-y-8">
+                    <div class="flex items-start">
+                        <div class="w-14 h-14 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-lupopo-yellow text-xl flex-shrink-0">
+                            <i class="fas fa-headset"></i>
+                        </div>
+                        <div class="ml-6">
+                            <h4 class="text-lg font-bold text-white mb-1">Appelez-nous</h4>
+                            <a href="tel:0972489318" class="text-gray-300 text-lg hover:text-lupopo-yellow hover:underline transition-colors">+243 97 24 89 318</a>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-start">
+                        <div class="w-14 h-14 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-lupopo-yellow text-xl flex-shrink-0">
+                            <i class="fas fa-envelope-open-text"></i>
+                        </div>
+                        <div class="ml-6">
+                            <h4 class="text-lg font-bold text-white mb-1">Envoyez un email</h4>
+                            <a href="mailto:sainteloi@gmail.com" class="text-gray-300 text-lg hover:text-lupopo-yellow hover:underline transition-colors">sainteloi@gmail.com</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Formulaire -->
+            <div class="lg:w-1/2">
+                <div class="bg-white rounded-3xl p-8 sm:p-10 shadow-2xl relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-yellow-50 rounded-bl-full -z-0"></div>
+                    <div class="relative z-10">
+                        <h3 class="text-2xl font-bold text-gray-900 mb-8">Envoyez un message</h3>
+                        
+                        <form action="https://api.web3forms.com/submit" method="POST" class="space-y-6 text-gray-800">
+                            <input type="hidden" name="access_key" value="f0a24e68-feaf-4b96-ba0f-07771649ad93">
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Nom complet *</label>
+                                <input name="name" type="text" required placeholder="Ex: John Doe" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-lupopo-yellow focus:border-transparent transition-all outline-none">
+                            </div>
+                            
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Email *</label>
+                                    <input name="email" type="email" required placeholder="john@example.com" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-lupopo-yellow focus:border-transparent transition-all outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Téléphone *</label>
+                                    <input name="phone" type="text" required placeholder="+243..." class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-lupopo-yellow focus:border-transparent transition-all outline-none">
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Sujet *</label>
+                                <input name="subject" type="text" required placeholder="Problème carte, adhésion..." class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-lupopo-yellow focus:border-transparent transition-all outline-none">
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Message *</label>
+                                <textarea name="msg" required placeholder="Décrivez votre besoin..." rows="4" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-lupopo-yellow focus:border-transparent transition-all outline-none resize-none"></textarea>
+                            </div>
+                            
+                            <button type="submit" class="w-full flex items-center justify-center px-8 py-4 bg-lupopo-blue text-white font-bold rounded-xl hover:bg-lupopo-dark shadow-lg shadow-blue-500/30 transition-all duration-300 transform hover:-translate-y-0.5">
+                                Envoyer le message <i class="fas fa-paper-plane ml-2"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+</section>
+
+<!-- Scroll automatique après recherche -->
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const query = "{{ query|default:'' }}";
+        if(query) {
+            const results = document.getElementById("resultats-cartes");
+            if(results) {
+                results.scrollIntoView({ behavior: "smooth", block: "start" });
+            }
+        }
+    });
+
+    // Animate large numbers on scroll
+    document.addEventListener("DOMContentLoaded", function(){
+        const counter = document.getElementById("supporteur-counter");
+        if(counter){
+            const target = parseInt(counter.getAttribute("data-target"));
+            let count = 0;
+            const speed = 50;
+
+            const updateCounter = () => {
+                const increment = Math.ceil(target / 100) || 1;
+                if(count < target){
+                    count += increment;
+                    if(count > target){
+                        count = target;
+                    }
+                    counter.innerText = count.toLocaleString();
+                    setTimeout(updateCounter, speed);
+                } else {
+                    counter.innerText = target.toLocaleString();
+                }
+            };
+
+            // Observer pour démarrer quand visible (optionnel mais meilleur)
+            const obs = new IntersectionObserver((entries) => {
+                if(entries[0].isIntersecting){
+                    updateCounter();
+                    obs.disconnect();
+                }
+            }, {threshold: 0.5});
+            obs.observe(counter);
+        }
+    });
+
+    // Formatting currency animated
+    document.addEventListener("DOMContentLoaded", () => {
+        const counters = document.querySelectorAll(".count");
+        const animateCount = (el, endValue) => {
+            let start = 0;
+            const duration = 1500;
+            const stepTime = 30; // ms per frame (~33fps)
+            const steps = duration / stepTime;
+            const increment = endValue / steps;
+
+            const timer = setInterval(() => {
+                start += increment;
+                if(start >= endValue){
+                    el.textContent = endValue.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0});
+                    clearInterval(timer);
+                } else {
+                    el.textContent = Math.floor(start).toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0});
+                }
+            }, stepTime);
+        };
+
+        const observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if(entry.isIntersecting){
+                    const el = entry.target;
+                    const value = parseFloat(el.getAttribute("data-count")) || 0;
+                    animateCount(el, value);
+                    observer.unobserve(el);
+                }
+            });
+        }, { threshold: 0.5 });
+    
+        counters.forEach(counter => {
+            observer.observe(counter);
+        });
+    });
+</script>
+{% endblock %}

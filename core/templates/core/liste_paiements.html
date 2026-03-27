@@ -1,0 +1,189 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<section class="py-20 bg-gray-50 min-h-screen">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <div class="flex flex-col md:flex-row justify-between items-end mb-12">
+            <div>
+                <span class="text-lupopo-blue font-semibold tracking-wider uppercase text-sm mb-2 block">Communauté & Soutiens</span>
+                <h2 class="text-3xl md:text-4xl font-bold text-gray-900">
+                    Tous les paiements de contribution
+                </h2>
+            </div>
+            <div class="hidden md:block text-gray-500 text-sm font-medium">
+                Page {{ paiements.number }} sur {{ paiements.paginator.num_pages }}
+            </div>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {% for paiement in paiements %}
+            <div class="bg-white rounded-3xl p-6 shadow-lg shadow-gray-200/50 border border-gray-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+                <div class="flex items-center gap-4">
+                    <div class="relative">
+                        {% if paiement.user.profile_pic %}
+                        <img class="h-16 w-16 rounded-full object-cover border-2 border-lupopo-yellow" src="{{ paiement.user.profile_pic.url }}">
+                        {% else %}
+                        <div class="h-16 w-16 rounded-full bg-gradient-to-br from-lupopo-blue to-lupopo-dark flex items-center justify-center text-white font-bold text-xl border-2 border-lupopo-yellow">
+                            {{ paiement.user.username|slice:":1"|upper }}
+                        </div>
+                        {% endif %}
+                        <div class="absolute -bottom-1 -right-1 bg-green-500 w-5 h-5 rounded-full border-2 border-white flex items-center justify-center">
+                            <i class="fas fa-check text-[10px] text-white"></i>
+                        </div>
+                    </div>
+                
+                    <div>
+                        <h4 class="font-bold text-gray-900 text-lg">
+                            {{ paiement.user.username }}
+                        </h4>
+                        <p class="text-gray-500 text-sm flex items-center mt-1">
+                            <i class="far fa-clock mr-1"></i> {{ paiement.date_paiement|date:"d M Y" }} à {{ paiement.date_paiement|date:"H:i" }}
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="mt-6 pt-6 border-t border-gray-100 flex justify-between items-center">
+                    <span class="text-gray-500 text-sm">Montant versé</span>
+                    <span class="text-lupopo-dark font-extrabold text-xl px-4 py-1.5 bg-yellow-50 text-yellow-700 rounded-xl border border-yellow-100">
+                        + {{ paiement.montant_total }} <small class="text-xs">CDF</small>
+                    </span>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-span-full text-center py-20">
+                <i class="fas fa-hand-holding-usd text-gray-200 text-6xl mb-4"></i>
+                <p class="text-gray-500 text-lg">Aucune contribution trouvée.</p>
+            </div>
+            {% endfor %}
+        </div>
+        
+        {% if paiements.has_other_pages %}
+        <nav class="flex justify-center mt-16">
+            <ul class="inline-flex items-center -space-x-px shadow-sm rounded-2xl overflow-hidden border border-gray-200 bg-white">
+                {% if paiements.has_previous %}
+                <li>
+                    <a href="?page={{ paiements.previous_page_number }}" class="block px-5 py-4 text-gray-500 hover:bg-lupopo-blue hover:text-white transition-colors">
+                        <i class="fas fa-arrow-left"></i>
+                    </a>
+                </li>
+                {% endif %}
+
+                <li class="px-8 py-4 bg-gray-900 text-white font-bold">
+                    {{ paiements.number }} / {{ paiements.paginator.num_pages }}
+                </li>
+
+                {% if paiements.has_next %}
+                <li>
+                    <a href="?page={{ paiements.next_page_number }}" class="block px-5 py-4 text-gray-500 hover:bg-lupopo-blue hover:text-white transition-colors">
+                        <i class="fas fa-arrow-right"></i>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+
+    </div>
+</section>
+{% endblock %}
+
+{% comment %} {% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+
+<section class="py-20 bg-gray-100 min-h-screen">
+
+<div class="max-w-7xl mx-auto px-6">
+
+<h1 class="text-4xl font-bold text-center mb-12">
+Tous les paiements de contribution
+</h1>
+
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+
+{% for paiement in paiements %}
+
+<div class="bg-white p-6 rounded-2xl shadow hover:shadow-lg transition">
+
+<div class="flex flex-col items-center text-center">
+
+<!-- Avatar -->
+{% if paiement.user.profile_pic %}
+<img class="h-20 w-20 rounded-full object-cover mb-4"
+     src="{{ paiement.user.profile_pic.url }}">
+{% else %}
+<img class="h-20 w-20 rounded-full object-cover mb-4"
+     src="https://bootdey.com/img/Content/avatar/avatar7.png">
+{% endif %}
+
+<h3 class="font-semibold text-lg">
+{{ paiement.user.username }}
+</h3>
+
+<p class="text-green-600 font-bold text-xl mt-2">
+{{ paiement.montant_total }} CDF
+</p>
+
+<p class="text-gray-500 text-sm mt-1">
+{{ paiement.date_paiement|date:"d M Y - H:i" }}
+</p>
+
+</div>
+
+</div>
+
+{% endfor %}
+
+</div>
+
+
+<!-- Pagination -->
+
+{% if paiements.has_other_pages %}
+
+<div class="flex justify-center mt-12">
+
+<ul class="flex space-x-2">
+
+{% if paiements.has_previous %}
+
+<li>
+<a href="?page={{ paiements.previous_page_number }}"
+class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">
+Précédent
+</a>
+</li>
+
+{% endif %}
+
+
+<li class="px-4 py-2 bg-gray-800 text-white rounded">
+Page {{ paiements.number }} / {{ paiements.paginator.num_pages }}
+</li>
+
+
+{% if paiements.has_next %}
+
+<li>
+<a href="?page={{ paiements.next_page_number }}"
+class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">
+Suivant
+</a>
+</li>
+
+{% endif %}
+
+</ul>
+
+</div>
+
+{% endif %}
+
+</div>
+
+</section>
+
+{% endblock %} {% endcomment %}
